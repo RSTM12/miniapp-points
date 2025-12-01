@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Memaksa background hitam agar tidak ada celah putih */
+body {
+  background-color: #000000;
+  color: #ffffff;
+}
