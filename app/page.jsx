@@ -1,23 +1,43 @@
-"use client"; // <--- WAJIB: Baris ini harus ada di paling atas!
+"use client";
 
-import { useEffect } from "react";
-import sdk from "@farcaster/frame-sdk"; 
+import { useEffect, useState } from "react";
+import sdk from "@farcaster/frame-sdk";
 
 export default function Home() {
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Fungsi ini memberi tahu Farcaster bahwa aplikasi sudah siap
-    // Ini akan menghilangkan error "Ready not called"
-    sdk.actions.ready();
+    const load = async () => {
+      // Panggil ready() agar splash screen hilang
+      sdk.actions.ready();
+    };
+    
+    // Jalankan segera
+    load();
+    setIsLoaded(true);
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Mini App Saya</h1>
-      <p>Status: Aplikasi berhasil dimuat!</p>
+    <div style={{ 
+      padding: "20px", 
+      fontFamily: "system-ui, sans-serif",
+      textAlign: "center",
+      backgroundColor: "#f0f0f0",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center"
+    }}>
+      <h1 style={{ fontSize: "24px", marginBottom: "10px" }}>
+        Mini App Berhasil!
+      </h1>
       
-      <div className="mt-4 p-4 bg-gray-100 rounded">
-        <p>Coba edit file page.jsx untuk mengubah tampilan ini.</p>
+      <p style={{ color: "#666" }}>
+        {isLoaded ? "Status: SDK Ready ✅" : "Loading..."}
+      </p>
+
+      <div style={{ marginTop: "20px", padding: "10px", background: "white", borderRadius: "8px" }}>
+        <p>Sekarang kamu bisa mulai coding fitur lain di file page.jsx</p>
       </div>
     </div>
   );
