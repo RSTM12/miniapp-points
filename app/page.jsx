@@ -14,12 +14,12 @@ import { injected } from "wagmi/connectors";
 export default function Home() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   
-  // --- CONFIG ---
-  const NFT_IMAGE = "https://i.imgur.com/CWDPgYB.jpeg"; // Gambar Donat Neon
+  // --- KONFIGURASI KAMU ---
+  const NFT_IMAGE = "[https://i.imgur.com/CWDPgYB.jpeg)"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005"; 
-  const RECEIVER_ADDRESS = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ JANGAN LUPA GANTI INI
-  // --------------
+  const RECEIVER_ADDRESS = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET ADDRESS INI
+  // ------------------------
 
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
@@ -53,91 +53,99 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center py-8 px-4 font-sans">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 font-sans">
       
       {/* Container Utama */}
       <div className="w-full max-w-sm relative group">
         
-        {/* Glow Effect Belakang */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-75 blur"></div>
+        {/* Efek Cahaya Belakang (Glow) */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
         
-        {/* KARTU KONTEN */}
-        <div className="relative bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+        {/* Kartu Konten */}
+        <div className="relative w-full bg-gray-900 ring-1 ring-gray-900/5 rounded-2xl leading-none flex flex-col overflow-hidden">
           
-          {/* Gambar */}
-          <div className="relative aspect-square w-full">
+          {/* Bagian Gambar */}
+          <div className="relative aspect-square w-full bg-gray-800">
             <img 
               src={NFT_IMAGE} 
               alt="NFT Preview" 
               className="w-full h-full object-cover"
             />
-            {/* Badge */}
-            <div className="absolute top-3 right-3 bg-blue-600 text-xs font-bold px-3 py-1 rounded-full text-white shadow-lg">
-              BASE
+            {/* Badge Pojok Kanan */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-blue-400">
+                BASE
+              </span>
             </div>
           </div>
 
-          <div className="p-6">
-            <h1 className="text-2xl font-bold mb-1 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-              {NFT_TITLE}
-            </h1>
-            <p className="text-gray-400 text-sm mb-6">Digital Collectible</p>
-
-            {/* Harga */}
-            <div className="flex justify-between items-center bg-gray-800 p-4 rounded-xl mb-6 border border-gray-700">
-              <span className="text-xs text-gray-500 uppercase font-bold">Price</span>
-              <span className="text-xl font-bold text-white">{NFT_PRICE} ETH</span>
+          {/* Bagian Info & Tombol */}
+          <div className="p-6 space-y-4">
+            
+            {/* Judul */}
+            <div>
+              <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                {NFT_TITLE}
+              </h1>
+              <p className="text-gray-400 text-sm mt-1">Cyberpunk Collection</p>
             </div>
 
-            {/* TOMBOL AKSI */}
-            <div className="flex flex-col gap-3">
+            {/* Harga */}
+            <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700 flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-xs font-bold uppercase tracking-wider">Price</p>
+                <p className="text-white text-lg font-mono font-bold">{NFT_PRICE} ETH</p>
+              </div>
+              <div className="text-right">
+                <p className="text-purple-400 text-xs">Available Now</p>
+              </div>
+            </div>
+
+            {/* Tombol Logika */}
+            <div className="pt-2">
               {!isConnected ? (
                 <button 
                   onClick={() => connect({ connector: injected() })}
-                  className="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 rounded-xl transition-all"
+                  className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-all transform active:scale-95"
                 >
                   Connect Wallet
                 </button>
               ) : isConfirmed ? (
-                <div className="text-center p-4 bg-green-900/50 border border-green-500 rounded-xl">
-                  <p className="text-green-400 font-bold mb-1">MINT SUKSES! 🎉</p>
+                <div className="w-full bg-green-900/30 border border-green-500 text-green-400 p-4 rounded-xl text-center">
+                  <p className="font-bold">MINT SUKSES! 🎉</p>
                   <a 
                     href={`https://basescan.org/tx/${hash}`}
                     target="_blank"
-                    className="text-xs text-green-300 underline"
+                    className="text-xs underline mt-2 block hover:text-green-300"
                   >
-                    Lihat di Explorer
+                    Lihat Bukti Transaksi
                   </a>
                 </div>
               ) : (
                 <button
                   onClick={handlePay}
                   disabled={isPending || isConfirming}
-                  className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-lg transition-all ${
+                  className={`w-full py-4 rounded-xl font-bold text-lg text-white shadow-xl transition-all transform active:scale-95 ${
                     isPending || isConfirming 
-                      ? "bg-gray-700 cursor-not-allowed opacity-70" 
-                      : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
+                    ? "bg-gray-600 cursor-not-allowed" 
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
                   }`}
                 >
-                   {isPending ? "Cek Wallet Kamu..." : isConfirming ? "Sedang Proses..." : "MINT SEKARANG"}
+                  {isPending ? "Cek Wallet..." : isConfirming ? "Memproses..." : "MINT SEKARANG"}
                 </button>
               )}
             </div>
 
-            {/* Error Message */}
+            {/* Pesan Error */}
             {error && (
-               <div className="mt-4 p-3 bg-red-900/50 border border-red-800 rounded text-center">
-                 <p className="text-xs text-red-200">{error.message.split('.')[0]}</p>
-               </div>
+              <div className="text-xs text-red-400 bg-red-900/30 p-2 rounded text-center border border-red-800 mt-2">
+                {error.message.split('.')[0]}
+              </div>
             )}
-            
+
           </div>
         </div>
       </div>
-      
-      {/* Footer */}
-      <p className="mt-8 text-xs text-gray-600">Powered by Farcaster</p>
-
     </div>
   );
 }
