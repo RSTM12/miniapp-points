@@ -1,9 +1,0 @@
-{
-  "version": 1,
-  "name": "Mini Points",
-  "description": "Mine points from a Farcaster Mini App",
-  "developer": "RSTM12",
-  "website": "https://miniapp-points.vercel.app",
-  "icon": "https://miniapp-points.vercel.app/icon.png",
-  "screenshots": []
-}
