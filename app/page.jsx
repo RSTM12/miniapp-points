@@ -2,59 +2,107 @@
 
 import { useEffect, useState } from "react";
 import sdk from "@farcaster/frame-sdk";
+import { 
+  useAccount, 
+  useConnect, 
+  useSendTransaction, 
+  useWaitForTransactionReceipt 
+} from "wagmi";
+import { parseEther } from "viem";
+import { injected } from "wagmi/connectors";
 
 export default function Home() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [context, setContext] = useState(null); // <--- State untuk simpan data user
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  
+  // Mengambil status wallet user
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect();
+  
+  // Setup fungsi kirim uang
+  const { 
+    data: hash, 
+    sendTransaction, 
+    isPending, 
+    error 
+  } = useSendTransaction();
+
+  // Cek status transaksi (sukses/gagal)
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = 
+    useWaitForTransactionReceipt({ hash });
 
   useEffect(() => {
     const load = async () => {
-      // 1. Ambil data context (user info)
-      const contextData = await sdk.context;
-      setContext(contextData);
-      
-      // 2. Panggil ready()
       sdk.actions.ready();
     };
-    
-    if (sdk && !isLoaded) {
-      setIsLoaded(true);
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
       load();
+      // Otomatis coba connect ke wallet Farcaster
+      connect({ connector: injected() });
     }
-  }, [isLoaded]);
+  }, [isSDKLoaded, connect]);
+
+  // --- FUNGSI BAYAR ---
+  const handlePay = () => {
+    sendTransaction({
+      // ⚠️ GANTI INI DENGAN WALLET ADDRESS KAMU ⚠️
+      to: "0x6894ba473eAc0C4D48D1998519070063EcB716c5", 
+      value: parseEther("0.00005"), // Kirim 0.00005 ETH
+    });
+  };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-md space-y-4">
-      <h1 className="text-xl font-bold text-center">Profil Farcaster Saya</h1>
-      
-      {/* Tampilkan Data User jika sudah ada */}
-      {context?.user ? (
-        <div className="text-center">
-          {/* Foto Profil */}
-          {context.user.pfpUrl && (
-            <img 
-              src={context.user.pfpUrl} 
-              alt="Profile" 
-              className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-purple-500"
-            />
-          )}
-          
-          {/* Username & FID */}
-          <p className="text-lg font-semibold">@{context.user.username}</p>
-          <p className="text-gray-500 text-sm">FID: {context.user.fid}</p>
-        </div>
-      ) : (
-        <p className="text-center text-gray-400">Loading data user...</p>
-      )}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+      <h1 className="text-2xl font-bold mb-6">Demo Bayar Native</h1>
 
-      {/* Tombol Contoh Interaksi */}
-      <div className="mt-6 pt-4 border-t border-gray-100">
-         <button 
-           className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition"
-           onClick={() => sdk.actions.openUrl("https://warpcast.com")}
-         >
-           Buka Warpcast
-         </button>
+      <div className="w-full max-w-sm bg-gray-900 border border-gray-800 p-6 rounded-xl">
+        
+        {/* Status Koneksi */}
+        <div className="mb-6 text-center">
+          {!isConnected ? (
+            <button 
+              onClick={() => connect({ connector: injected() })}
+              className="text-blue-400 hover:underline"
+            >
+              Connect Wallet Manual
+            </button>
+          ) : (
+            <div>
+              <p className="text-green-400 text-sm font-bold">Wallet Terhubung ✅</p>
+              <p className="text-xs text-gray-500 mt-1">{address}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Tombol Bayar */}
+        <button
+          onClick={handlePay}
+          disabled={!isConnected || isPending || isConfirming}
+          className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+            !isConnected ? "bg-gray-700 opacity-50 cursor-not-allowed" : 
+            isPending ? "bg-yellow-600 cursor-wait" : 
+            "bg-blue-600 hover:bg-blue-500 active:scale-95"
+          }`}
+        >
+          {isPending ? "Cek Wallet Kamu..." : 
+           isConfirming ? "Sedang Memproses..." : 
+           "Bayar 0.00005 ETH"}
+        </button>
+
+        {/* Pesan Error */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-900/30 border border-red-800 rounded text-red-200 text-xs break-words">
+            Gagal: {error.message.split('.')[0]}
+          </div>
+        )}
+
+        {/* Pesan Sukses */}
+        {isConfirmed && (
+          <div className="mt-4 p-3 bg-green-900/30 border border-green-800 rounded text-green-200 text-center text-sm">
+            ✅ Pembayaran Berhasil!
+          </div>
+        )}
+
       </div>
     </div>
   );
