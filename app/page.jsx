@@ -1,38 +1,24 @@
-"use client";
+"use client"; // <--- WAJIB: Baris ini harus ada di paling atas!
 
 import { useEffect } from "react";
-import { sdk } from "@farcaster/frame-sdk";
+import sdk from "@farcaster/frame-sdk"; 
 
 export default function Home() {
-  const claim = async () => {
-    const res = await fetch("/api/points", { method: "POST" });
-    const data = await res.json();
-    alert(`Points claimed! Total: ${data.total}`);
-  };
 
   useEffect(() => {
-    // WAJIB! → Biar Mini App keluar dari loading state
+    // Fungsi ini memberi tahu Farcaster bahwa aplikasi sudah siap
+    // Ini akan menghilangkan error "Ready not called"
     sdk.actions.ready();
   }, []);
 
   return (
-    <div style={{ padding: 30 }}>
-      <h1>⚡ Points Mining Mini App</h1>
-      <p>Click the button below to mine points.</p>
-
-      <button
-        onClick={claim}
-        style={{
-          padding: "10px 20px",
-          fontSize: 18,
-          background: "purple",
-          color: "#fff",
-          borderRadius: 8,
-          border: "none",
-        }}
-      >
-        Mine Points
-      </button>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <h1 className="text-2xl font-bold mb-4">Mini App Saya</h1>
+      <p>Status: Aplikasi berhasil dimuat!</p>
+      
+      <div className="mt-4 p-4 bg-gray-100 rounded">
+        <p>Coba edit file page.jsx untuk mengubah tampilan ini.</p>
+      </div>
     </div>
   );
 }
