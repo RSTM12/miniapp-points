@@ -1,21 +1,31 @@
-import "./globals.css"; // Baris ini WAJIB ada paling atas
+import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata = {
-  title: "Donut NFT Mint",
-  description: "Mint your exclusive Neon Donut NFT",
+  // 👇 1. GANTI NAMA APP DI SINI (Muncul di Browser Tab / Preview Link)
+  title: "DONUT GENESIS MINTING", 
+  
+  // 👇 2. GANTI DESKRIPSI DI SINI
+  description: "Early For Donut.",
+  
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": "[https://i.imgur.com/9C8jX8b.png](https://i.imgur.com/9C8jX8b.png)",
-    "fc:frame:button:1": "Mint Now",
-    "fc:frame:action": "tx",
+    "fc:frame:image": "https://i.imgur.com/CWDPgYB.jpeg",
+    
+    // --- SETTING TOMBOL FEED ---
+    // 👇 3. GANTI TULISAN DI TOMBOL FEED (Yang diklik user)
+    "fc:frame:button:1": "OPEN NOW 🚀",
+    
+    "fc:frame:button:1:action": "link", 
+    // 👇 GANTI INI DENGAN LINK VERCEL KAMU YANG ASLI 👇
+    "fc:frame:button:1:target": "https://miniapp-points.vercel.app/", 
   },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-black antialiased">
+      <body className="bg-black">
         <Providers>{children}</Providers>
       </body>
     </html>
