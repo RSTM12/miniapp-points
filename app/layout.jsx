@@ -1,12 +1,23 @@
+import "./globals.css";
+import { Providers } from "./providers";
+
 export const metadata = {
-  title: "MiniApp Points",
-  description: "Farcaster Mini App for mining points",
+  title: "Farcaster Mini App",
+  description: "Native Transaction Demo",
+  other: {
+    "fc:frame": "vNext",
+    "fc:frame:image": "https://placehold.co/600x400",
+    "fc:frame:button:1": "Open App",
+    "fc:frame:action": "url",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
