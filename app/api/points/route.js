@@ -1,16 +1,10 @@
-let points = 0;
+let total = 0;
 
 export async function POST() {
-  points += 1;
+  total += 1;
 
-  return Response.json({
-    success: true,
-    total: points
-  });
-}
-
-export async function GET() {
-  return Response.json({
-    total: points
-  });
+  return new Response(
+    JSON.stringify({ total }),
+    { status: 200, headers: { "Content-Type": "application/json" } }
+  );
 }
