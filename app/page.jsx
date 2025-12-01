@@ -1,14 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { sdk } from "@farcaster/frame-sdk";
-
 export default function Home() {
-
-  // 🔥 WAJIB — beri tahu Farcaster bahwa mini-app siap
-  useEffect(() => {
-    sdk.ready();
-  }, []);
 
   async function claim() {
     const res = await fetch("/api/points", { method: "POST" });
@@ -18,21 +10,21 @@ export default function Home() {
 
   return (
     <div style={{ padding: 30 }}>
-      <h1>💠 Points Mining Mini App</h1>
+      <h1>🔥 Points Mining Mini App</h1>
       <p>Click button to mine points.</p>
 
       <button
         onClick={claim}
         style={{
-          padding: "12px 20px",
+          padding: "10px 20px",
           background: "purple",
           color: "white",
-          borderRadius: 10,
-          border: 0,
-          marginTop: 10
+          borderRadius: 8,
+          border: "none",
+          marginTop: 20
         }}
       >
-        Claim Points
+        Mine Points
       </button>
     </div>
   );
