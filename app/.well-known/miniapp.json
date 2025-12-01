@@ -1,0 +1,10 @@
+{
+  "schema": "1.0",
+  "id": "points-miniapp",
+  "name": "Points Mining Mini App",
+  "description": "Claim daily points inside Warpcast!",
+  "iconUrl": "https://i.imgur.com/TIe8QyN.png",
+  "developer": { "name": "RSTM12" },
+  "homeUrl": "https://YOUR-VERCEL-URL.vercel.app",
+  "webhookUrl": null
+}
