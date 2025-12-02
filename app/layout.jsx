@@ -1,40 +1,52 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
-// GANTI INI DENGAN URL VERCEL KAMU YANG ASLI
-const APP_URL = "https://donut-genesis.vercel.app"; 
+// 👇 GANTI BAGIAN INI DENGAN LINK VERCEL KAMU YANG BARU 👇
+// Contoh: "https://donut-genesis.vercel.app"
+const APP_URL = "https://donut-genesis.vercel.app/"; 
+
+const IMAGE_URL = "https://i.imgur.com/9C8jX8b.png";
 
 export const metadata = {
   title: "DONUT GENESIS #777",
-  description: "Mint Exclusive Donut NFT on Base",
+  description: "Exclusive NFT Collection on Base",
   
-  // 1. Metadata Standar (Untuk Preview di Twitter/Discord/WA)
   openGraph: {
     title: "DONUT GENESIS #777",
-    description: "Mint Exclusive Donut NFT on Base",
-    images: ["https://i.imgur.com/CWDPgYB.jpeg"], 
+    description: "Exclusive NFT Collection on Base",
+    url: APP_URL,
+    siteName: "Donut Mint",
+    images: [
+      {
+        url: IMAGE_URL,
+        width: 1000,
+        height: 1000,
+        alt: "Donut NFT Preview",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
   },
 
-  // 2. Metadata KHUSUS FARCASTER (Agar jadi Mini App)
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": "https://i.imgur.com/CWDPgYB.jpeg",
-    "fc:frame:image:aspect_ratio": "1:1", // Agar gambar kotak penuh (Retro style)
+    "fc:frame:image": IMAGE_URL,
+    "fc:frame:image:aspect_ratio": "1:1",
     
-    // Tombol Peluncur Mini App
-    "fc:frame:button:1": "OPEN APP 🍩",
-    "fc:frame:button:1:action": "link", // Aksi 'link' akan membuka App/Webview
-    "fc:frame:button:1:target": https://donut-genesis.vercel.app, // Link tujuan saat tombol ditekan
+    // Tombol di Feed Farcaster:
+    "fc:frame:button:1": "BUKA APP 🍩",
+    "fc:frame:button:1:action": "link",
+    "fc:frame:button:1:target": APP_URL, // Ini otomatis mengikuti link di atas
     
-    // Opsional: Link post URL (kadang dibutuhkan validator)
-    "fc:frame:post_url": `${https://donut-genesis.vercel.app}/api/frame`,
+    // Cadangan agar validator tidak error
+    "fc:frame:post_url": `${APP_URL}/api/frame`, 
   },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-white"> {/* Background default putih agar tidak glitch */}
+      <body className="bg-black text-white antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
