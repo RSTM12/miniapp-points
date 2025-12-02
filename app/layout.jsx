@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const APP_URL = "https://donut-genesis.vercel.app/"; 
 
 // Kita arahkan ke donut.jpg yang ada di folder public kamu
-const IMAGE_URL = ${APP_URL}/donut.jpg;
+const IMAGE_URL = APP_URL + "/donut.jpg";
 
 export const metadata = {
   title: "DONUT GENESIS",
@@ -25,7 +25,7 @@ export const metadata = {
     "fc:frame:button:1": "BUKA APP 🍩",
     "fc:frame:button:1:action": "link",
     "fc:frame:button:1:target": APP_URL,
-    "fc:frame:post_url": ${APP_URL}/api/frame, 
+    "fc:frame:post_url": APP_URL + "/api/frame", 
   },
 };
 
