@@ -1,36 +1,33 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
-// ⚠️ GANTI LINK DI BAWAH INI DENGAN LINK VERCEL KAMU YANG BARU
-// Contoh: "https://donut-genesis.vercel.app"
-// (Jangan pakai tanda slash '/' di belakang)
-const APP_URL = "https://donut-genesis-vercel.app";
-
 export const metadata = {
   title: "DONUT GENESIS",
   description: "Mint Exclusive NFT",
   openGraph: {
     title: "DONUT GENESIS",
     description: "Mint Exclusive NFT",
-    url: APP_URL,
+    // 👇 GANTI MANUAL
+    url: "https://donut-genesis-vercel.app", 
     siteName: "Donut Mint",
     images: [{ 
-      // Menggabungkan link website + nama file gambar
-      url: APP_URL + "/donut.jpg" 
+      // 👇 GANTI MANUAL (JANGAN LUPA /donut.jpg DI BELAKANG)
+      url: "https://donut-genesis.vercel.app/donut.jpg" 
     }],
   },
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": APP_URL + "/donut.jpg",
+    // 👇 GANTI MANUAL (JANGAN LUPA /donut.jpg DI BELAKANG)
+    "fc:frame:image": "https://donut-genesis.vercel.app/donut.jpg",
     "fc:frame:image:aspect_ratio": "1:1",
     
-    // Tombol:
     "fc:frame:button:1": "BUKA APP 🍩",
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": APP_URL,
+    // 👇 GANTI MANUAL
+    "fc:frame:button:1:target": "https://donut-genesis.vercel.app",
     
-    // Post URL diarahkan ke home agar aman
-    "fc:frame:post_url": APP_URL,
+    // 👇 GANTI MANUAL
+    "fc:frame:post_url": "https//donut-genesis.vercel.app",
   },
 };
 
