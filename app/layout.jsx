@@ -1,35 +1,33 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
-// 1. GANTI LINK INI DENGAN LINK VERCEL KAMU YANG ASLI
-// (Pastikan pakai tanda kutip dua seperti contoh)
-const APP_URL = "https://miniapp-points.vercel.app"; 
-
-// 2. Link gambar (Saya pakai tanda tambah + biar gak error)
-const IMAGE_URL = APP_URL + "/donut.jpg";
-
 export const metadata = {
   title: "DONUT GENESIS",
   description: "Mint Exclusive NFT",
   openGraph: {
     title: "DONUT GENESIS",
     description: "Mint Exclusive NFT",
-    url: APP_URL,
+    // 👇 GANTI DENGAN LINK KAMU (JANGAN SALAH KETIK)
+    url: "https://donut-genesis-vercel.app",
     siteName: "Donut Mint",
-    images: [{ url: IMAGE_URL }],
+    images: [{ 
+      // 👇 GANTI LINK KAMU JUGA DI SINI
+      url: "https://donut-genesis-vercel.app/donut.jpg" 
+    }],
   },
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": IMAGE_URL,
+    // 👇 GANTI LINK KAMU DI SINI
+    "fc:frame:image": "https://donut-genesis-vercel.app/donut.jpg",
     "fc:frame:image:aspect_ratio": "1:1",
     
-    // Tombol:
-    "fc:frame:button:1": "OPEN APP 🍩",
+    "fc:frame:button:1": "BUKA APP 🍩",
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": APP_URL,
+    // 👇 GANTI LINK KAMU DI SINI
+    "fc:frame:button:1:target": "https://donut-genesis-vercel.app",
     
-    // Trik agar validasi lolos:
-    "fc:frame:post_url": APP_URL,
+    // 👇 GANTI LINK KAMU DI SINI
+    "fc:frame:post_url": "https://donut-genesis-vercel.app",
   },
 };
 
@@ -39,11 +37,6 @@ export default function RootLayout({ children }) {
       <body className="bg-white text-black">
         <Providers>{children}</Providers>
       </body>
-    </html>
-  );
-}
-    <html lang="en">
-      <body className="bg-white text-black">{children}</body>
     </html>
   );
 }
