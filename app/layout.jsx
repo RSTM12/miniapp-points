@@ -18,7 +18,7 @@ export const metadata = {
     
     "fc:frame:button:1:action": "link", 
     // 👇 GANTI INI DENGAN LINK VERCEL KAMU YANG ASLI 👇
-    "fc:frame:button:1:target": "https://miniapp-points.vercel.app/", 
+    "fc:frame:button:1:target": "https://donut-genesis.vercel.app//", 
   },
 };
 
