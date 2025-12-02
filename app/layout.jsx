@@ -1,8 +1,12 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
-// 👇 TULIS LINK VERCEL KAMU YANG BENAR DI SINI (Jangan salah ketik!)
-const APP_URL = "https://donut-genesis.vercel.app/"; 
+// 1. GANTI LINK INI DENGAN LINK VERCEL KAMU YANG ASLI
+// (Pastikan pakai tanda kutip dua seperti contoh)
+const APP_URL = "https://miniapp-points.vercel.app"; 
+
+// 2. Link gambar (Saya pakai tanda tambah + biar gak error)
+const IMAGE_URL = APP_URL + "/donut.jpg";
 
 export const metadata = {
   title: "DONUT GENESIS",
@@ -12,31 +16,32 @@ export const metadata = {
     description: "Mint Exclusive NFT",
     url: APP_URL,
     siteName: "Donut Mint",
-    images: [{ 
-      url: `${APP_URL}/donut.jpg` // Pastikan donut.jpg ada di folder public
-    }],
-    type: "website",
+    images: [{ url: IMAGE_URL }],
   },
   other: {
-    // Versi Frame
     "fc:frame": "vNext",
-    
-    // Gambar (Wajib Full URL)
-    "fc:frame:image": `${APP_URL}/donut.jpg`,
+    "fc:frame:image": IMAGE_URL,
     "fc:frame:image:aspect_ratio": "1:1",
     
-    // Tombol Buka App
-    "fc:frame:button:1": "BUKA APP 🍩",
+    // Tombol:
+    "fc:frame:button:1": "OPEN APP 🍩",
     "fc:frame:button:1:action": "link",
     "fc:frame:button:1:target": APP_URL,
     
-    // 👇 TRIK: Arahkan post_url ke halaman utama juga biar gak 404
-    "fc:frame:post_url": APP_URL, 
+    // Trik agar validasi lolos:
+    "fc:frame:post_url": APP_URL,
   },
 };
 
 export default function RootLayout({ children }) {
   return (
+    <html lang="en">
+      <body className="bg-white text-black">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
     <html lang="en">
       <body className="bg-white text-black">{children}</body>
     </html>
