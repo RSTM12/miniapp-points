@@ -8,7 +8,7 @@ export const metadata = {
     title: "DONUT GENESIS",
     description: "Mint Exclusive NFT",
     // 👇 GANTI MANUAL
-    url: "https://donut-genesis-vercel.app", 
+    url: "https://donut-genesis.vercel.app", 
     siteName: "Donut Mint",
     images: [{ 
       // 👇 GANTI MANUAL (JANGAN LUPA /donut.jpg DI BELAKANG)
