@@ -1,10 +1,11 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
-// 👇 GANTI DENGAN LINK VERCEL KAMU YANG AKTIF
-const APP_URL = "https://donut-genesis.vercel.app/";
+// 1. GANTI LINK INI DENGAN LINK VERCEL KAMU YANG BARU
+// (Pastikan pakai tanda kutip dua seperti contoh)
+const APP_URL = "https://donut-genesis.vercel.app"; 
 
-// Kita gunakan teknik (+) agar tidak error syntax
+// 2. Link gambar (Otomatis menggabungkan link di atas dengan nama file)
 const IMAGE_URL = APP_URL + "/donut.jpg";
 
 export const metadata = {
@@ -21,10 +22,13 @@ export const metadata = {
     "fc:frame": "vNext",
     "fc:frame:image": IMAGE_URL,
     "fc:frame:image:aspect_ratio": "1:1",
-    "fc:frame:button:1": "OPEN 🍩",
+    
+    // Tombol:
+    "fc:frame:button:1": "BUKA APP 🍩",
     "fc:frame:button:1:action": "link",
     "fc:frame:button:1:target": APP_URL,
-    // 👇 Ini perbaikan utamanya (tanda +), sebelumnya error di sini
+    
+    // Ini pakai tanda tambah (+) biar gak error
     "fc:frame:post_url": APP_URL + "/api/frame",
   },
 };
@@ -32,7 +36,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-white">{children}</body>
+      <body className="bg-white">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
