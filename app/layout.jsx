@@ -1,42 +1,43 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
+// ⚠️ GANTI LINK DI BAWAH INI DENGAN LINK VERCEL KAMU YANG BARU
+// Contoh: "https://donut-genesis.vercel.app"
+// (Jangan pakai tanda slash '/' di belakang)
+const APP_URL = "https://donut-genesis-vercel.app";
+
 export const metadata = {
   title: "DONUT GENESIS",
   description: "Mint Exclusive NFT",
   openGraph: {
     title: "DONUT GENESIS",
     description: "Mint Exclusive NFT",
-    // 👇 GANTI DENGAN LINK KAMU (JANGAN SALAH KETIK)
-    url: "https://donut-genesis-vercel.app",
+    url: APP_URL,
     siteName: "Donut Mint",
     images: [{ 
-      // 👇 GANTI LINK KAMU JUGA DI SINI
-      url: "https://donut-genesis-vercel.app/donut.jpg" 
+      // Menggabungkan link website + nama file gambar
+      url: APP_URL + "/donut.jpg" 
     }],
   },
   other: {
     "fc:frame": "vNext",
-    // 👇 GANTI LINK KAMU DI SINI
-    "fc:frame:image": "https://donut-genesis-vercel.app/donut.jpg",
+    "fc:frame:image": APP_URL + "/donut.jpg",
     "fc:frame:image:aspect_ratio": "1:1",
     
+    // Tombol:
     "fc:frame:button:1": "BUKA APP 🍩",
     "fc:frame:button:1:action": "link",
-    // 👇 GANTI LINK KAMU DI SINI
-    "fc:frame:button:1:target": "https://donut-genesis-vercel.app",
+    "fc:frame:button:1:target": APP_URL,
     
-    // 👇 GANTI LINK KAMU DI SINI
-    "fc:frame:post_url": "https://donut-genesis-vercel.app",
+    // Post URL diarahkan ke home agar aman
+    "fc:frame:post_url": APP_URL,
   },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-white text-black">
-        <Providers>{children}</Providers>
-      </body>
+      <body className="bg-white">{children}</body>
     </html>
   );
 }
