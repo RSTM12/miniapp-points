@@ -1,11 +1,10 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
-// ⚠️ GANTI LINK DI BAWAH INI DENGAN LINK VERCEL KAMU YANG BARU
-// (Jangan pakai tanda petik miring, pakai tanda petik biasa saja)
+// 👇 GANTI DENGAN LINK VERCEL KAMU YANG AKTIF
 const APP_URL = "https://donut-genesis.vercel.app";
 
-// Link gambar otomatis
+// 👇 FIX: Menggunakan tanda (+) agar tidak error syntax
 const IMAGE_URL = APP_URL + "/donut.jpg";
 
 export const metadata = {
@@ -22,13 +21,10 @@ export const metadata = {
     "fc:frame": "vNext",
     "fc:frame:image": IMAGE_URL,
     "fc:frame:image:aspect_ratio": "1:1",
-    
-    // Tombol:
     "fc:frame:button:1": "BUKA APP 🍩",
     "fc:frame:button:1:action": "link",
     "fc:frame:button:1:target": APP_URL,
-    
-    // Ini yang sering error, sekarang sudah aman:
+    // 👇 FIX: Menggunakan tanda (+) agar aman
     "fc:frame:post_url": APP_URL + "/api/frame",
   },
 };
