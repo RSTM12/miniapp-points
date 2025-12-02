@@ -2,225 +2,154 @@
 
 import { useEffect, useState } from "react";
 import sdk from "@farcaster/frame-sdk";
-import { 
-  useAccount, 
-  useConnect, 
-  useSendTransaction, 
-  useWaitForTransactionReceipt 
-} from "wagmi";
+import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
 import { injected } from "wagmi/connectors";
 
+// Font Pixel Retro (Inline CSS biar praktis)
+const retroFont = {
+  fontFamily: "'Press Start 2P', 'Courier New', monospace",
+  textTransform: 'uppercase',
+  letterSpacing: '1px'
+};
+
 export default function Home() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  
-  // --- KONFIGURASI ---
-  const NFT_IMAGE = "https://i.imgur.com/CWDPgYB.jpeg"; 
-  const NFT_TITLE = "DONUT GENESIS #777";
-  const NFT_PRICE = "0.00005"; 
-  const RECEIVER_ADDRESS = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET KAMU
-  // -------------------
-
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
-  
-  const { 
-    data: hash, 
-    sendTransaction, 
-    isPending, 
-    error 
-  } = useSendTransaction();
+  const { data: hash, sendTransaction, isPending, error } = useSendTransaction();
+  const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = 
-    useWaitForTransactionReceipt({ hash });
+  // --- CONFIG ---
+  const NFT_IMAGE = "https://i.imgur.com/CWDPgYB.jpeg"; // Gambar Donat (Masih berwarna, nanti jadi grayscale otomatis)
+  const NFT_TITLE = "DONUT GENESIS #777";
+  const NFT_PRICE = "0.00005";
+  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET KAMU
+  // --------------
 
   useEffect(() => {
-    const load = async () => {
-      sdk.actions.ready();
-    };
-    if (sdk && !isSDKLoaded) {
+    sdk.actions.ready();
+    if (!isSDKLoaded) {
       setIsSDKLoaded(true);
-      load();
       connect({ connector: injected() });
     }
   }, [isSDKLoaded, connect]);
 
-  const handlePay = () => {
-    sendTransaction({
-      to: RECEIVER_ADDRESS,
-      value: parseEther(NFT_PRICE),
-    });
+  const handlePay = () => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) });
+
+  // --- GAYA TAMPILAN RETRO MONOKROM (Inline Styles) ---
+  const containerStyle = {
+    minHeight: "100vh", backgroundColor: "#ffffff", color: "#000000",
+    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    padding: "20px", ...retroFont
   };
 
-  // --- STYLE MANUAL (CSS) ---
-  const styles = {
-    container: {
-      minHeight: "100vh",
-      backgroundColor: "#000000",
-      color: "white",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-      padding: "20px",
-    },
-    card: {
-      width: "100%",
-      maxWidth: "380px",
-      backgroundColor: "#111111",
-      borderRadius: "20px",
-      border: "1px solid #333",
-      overflow: "hidden",
-      boxShadow: "0 0 40px rgba(168, 85, 247, 0.4)", // Efek Glow Ungu
-      position: "relative",
-    },
-    imageContainer: {
-      position: "relative",
-      width: "100%",
-      aspectRatio: "1/1",
-      backgroundColor: "#222",
-    },
-    image: {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-    },
-    badge: {
-      position: "absolute",
-      top: "12px",
-      right: "12px",
-      backgroundColor: "#0052FF",
-      color: "white",
-      fontSize: "12px",
-      fontWeight: "bold",
-      padding: "4px 12px",
-      borderRadius: "100px",
-      border: "1px solid #6090FF",
-    },
-    content: {
-      padding: "24px",
-    },
-    title: {
-      fontSize: "24px",
-      fontWeight: "800",
-      margin: "0 0 4px 0",
-      background: "linear-gradient(90deg, #A855F7, #EC4899)", // Gradasi Teks
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-    },
-    subtitle: {
-      color: "#888",
-      fontSize: "14px",
-      marginTop: "0",
-      marginBottom: "20px",
-    },
-    priceBox: {
-      backgroundColor: "#222",
-      border: "1px solid #444",
-      borderRadius: "12px",
-      padding: "16px",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: "24px",
-    },
-    button: {
-      width: "100%",
-      padding: "16px",
-      borderRadius: "12px",
-      border: "none",
-      fontWeight: "bold",
-      fontSize: "16px",
-      cursor: isPending || isConfirming ? "wait" : "pointer",
-      backgroundColor: !isConnected ? "#fff" : "#A855F7",
-      backgroundImage: isConnected ? "linear-gradient(90deg, #9333EA, #DB2777)" : "none",
-      color: !isConnected ? "#000" : "#fff",
-      transition: "transform 0.1s",
-    },
-    successBox: {
-      backgroundColor: "rgba(34, 197, 94, 0.1)",
-      border: "1px solid #22c55e",
-      color: "#4ade80",
-      padding: "16px",
-      borderRadius: "12px",
-      textAlign: "center",
-    },
-    errorBox: {
-      marginTop: "12px",
-      padding: "10px",
-      backgroundColor: "rgba(239, 68, 68, 0.1)",
-      border: "1px solid #ef4444",
-      color: "#fca5a5",
-      fontSize: "12px",
-      borderRadius: "8px",
-      textAlign: "center",
-    }
+  const cardStyle = {
+    width: "100%", maxWidth: "340px", border: "3px solid #000",
+    backgroundColor: "#fff", padding: "2px", boxShadow: "5px 5px 0px #000"
+  };
+
+  const headerStyle = {
+    borderBottom: "3px solid #000", padding: "10px", textAlign: "center",
+    fontSize: "14px", fontWeight: "bold", backgroundColor: "#000", color: "#fff"
+  };
+
+  const imageContainerStyle = {
+    width: "100%", aspectRatio: "1/1", borderBottom: "3px solid #000",
+    backgroundColor: "#e0e0e0", overflow: "hidden", position: "relative"
+  };
+
+  const imageStyle = {
+    width: "100%", height: "100%", objectFit: "cover",
+    filter: "grayscale(100%) contrast(150%) pixelate(4px)" // Efek Gambar Pixel & Hitam Putih
+  };
+
+  const contentStyle = {
+    padding: "15px"
+  };
+
+  const infoBoxStyle = {
+    border: "2px dashed #000", padding: "10px", marginBottom: "15px",
+    display: "flex", justifyContent: "space-between", fontSize: "10px"
+  };
+
+  const btnStyle = {
+    width: "100%", padding: "15px", border: "3px solid #000",
+    backgroundColor: isConnected ? "#000" : "#fff",
+    color: isConnected ? "#fff" : "#000",
+    fontSize: "12px", fontWeight: "bold", cursor: "pointer", ...retroFont,
+    boxShadow: "3px 3px 0px #000", transition: "all 0.1s",
+    position: "relative", top: "0px", left: "0px"
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        
-        {/* GAMBAR */}
-        <div style={styles.imageContainer}>
-          <img src={NFT_IMAGE} alt="NFT" style={styles.image} />
-          <div style={styles.badge}>BASE</div>
+    <div style={containerStyle}>
+      {/* Status Bar Retro */}
+      <div style={{width: '100%', maxWidth: '340px', border: '3px solid #000', marginBottom: '10px', padding: '5px 10px', fontSize: '10px', display: 'flex', justifyContent: 'space-between', backgroundColor: '#fff'}}>
+        <span>SYS: ONLINE</span>
+        <span>{isConnected ? `USER: ${address?.slice(0,4)}..${address?.slice(-2)}` : "USER: GUEST"}</span>
+      </div>
+
+      <div style={cardStyle}>
+        {/* Header */}
+        <div style={headerStyle}>
+          COLLECTIBLE ITEM
         </div>
 
-        {/* KONTEN */}
-        <div style={styles.content}>
-          <h1 style={styles.title}>{NFT_TITLE}</h1>
-          <p style={styles.subtitle}>Cyberpunk Collection</p>
+        {/* Gambar dengan Efek Retro */}
+        <div style={imageContainerStyle}>
+          <img src={NFT_IMAGE} style={imageStyle} />
+          <div style={{position: 'absolute', bottom: '5px', right: '5px', border: '2px solid #000', backgroundColor: '#fff', padding: '2px 5px', fontSize: '8px'}}>
+            BASE NET
+          </div>
+        </div>
+        
+        {/* Konten Info */}
+        <div style={contentStyle}>
+          <h1 style={{fontSize: "16px", margin: "0 0 15px 0", borderBottom: "2px dotted #000", paddingBottom: "5px"}}>
+            {NFT_TITLE}
+          </h1>
 
-          <div style={styles.priceBox}>
-            <div>
-              <div style={{fontSize: '10px', color: '#666', fontWeight: 'bold', textTransform: 'uppercase'}}>Price</div>
-              <div style={{fontSize: '18px', fontWeight: 'bold'}}>{NFT_PRICE} ETH</div>
-            </div>
-            <div style={{fontSize: '12px', color: '#A855F7'}}>Available Now</div>
+          <div style={infoBoxStyle}>
+            <span>PRICE:</span>
+            <span style={{fontWeight: "bold"}}>{NFT_PRICE} ETH</span>
+          </div>
+          <div style={{...infoBoxStyle, borderStyle: 'solid'}}>
+            <span>STATUS:</span>
+            <span>{isConfirmed ? "OWNED [X]" : "AVAILABLE [ ]"}</span>
           </div>
 
+          {/* Tombol Aksi */}
           {!isConnected ? (
-            <button 
-              onClick={() => connect({ connector: injected() })}
-              style={styles.button}
-            >
-              Connect Wallet
+            <button onClick={() => connect({ connector: injected() })} style={btnStyle}>
+              [ CONNECT WALLET ]
             </button>
           ) : isConfirmed ? (
-            <div style={styles.successBox}>
-              <p style={{fontWeight: 'bold', margin: 0}}>MINT SUCCESS! 🎉</p>
-              <a 
-                href={`https://basescan.org/tx/${hash}`}
-                target="_blank"
-                style={{fontSize: '12px', color: '#4ade80', textDecoration: 'underline', marginTop: '4px', display: 'block'}}
-              >
-                View on Etherscan
-              </a>
-            </div>
+            <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none', backgroundColor: '#fff', color: '#000'}}>
+              [ VIEW RECEIPT ]
+            </a>
           ) : (
-            <button
-              onClick={handlePay}
-              disabled={isPending || isConfirming}
-              style={{
-                ...styles.button,
-                opacity: isPending || isConfirming ? 0.7 : 1
-              }}
+            <button 
+              onClick={handlePay} 
+              disabled={isPending} 
+              style={{...btnStyle, opacity: isPending ? 0.6 : 1}}
             >
-              {isPending ? "Confirming..." : isConfirming ? "Processing..." : "MINT NOW"}
+              {isPending ? "PROCESSING..." : `[ MINT NOW ]`}
             </button>
           )}
 
+          {/* Error Log */}
           {error && (
-            <div style={styles.errorBox}>
-              {error.message.split('.')[0]}
+            <div style={{marginTop: "15px", border: "2px solid #000", padding: "5px", fontSize: "8px", backgroundColor: "#f0f0f0"}}>
+              ERR: {error.message.split('.')[0].toUpperCase()}
             </div>
           )}
         </div>
       </div>
       
-      <p style={{fontSize: '10px', color: '#444', marginTop: '20px'}}>Powered by Farcaster</p>
+      <p style={{fontSize: "8px", marginTop: "20px", letterSpacing: '2px'}}>
+        // POWERED BY FARCASTER //
+      </p>
     </div>
   );
 }
