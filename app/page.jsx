@@ -28,8 +28,6 @@ export default function Home() {
   
   // --- SUPPLY CONFIG ---
   const MAX_SUPPLY = 1000;
-  // Kita set angka awal pura-pura (misal 742 orang sudah mint)
-  // Di aplikasi asli, angka ini diambil dari Smart Contract (Read Contract)
   const [currentSupply, setCurrentSupply] = useState(742); 
   // ---------------------
 
@@ -41,7 +39,6 @@ export default function Home() {
     }
   }, [isSDKLoaded, connect]);
 
-  // Efek nambah supply kalau sukses mint
   useEffect(() => {
     if (isConfirmed) {
       setCurrentSupply(prev => Math.min(prev + 1, MAX_SUPPLY));
@@ -50,7 +47,6 @@ export default function Home() {
 
   const handlePay = () => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) });
 
-  // Menghitung persentase untuk Progress Bar
   const progressPercent = (currentSupply / MAX_SUPPLY) * 100;
 
   // --- STYLES ---
@@ -73,7 +69,7 @@ export default function Home() {
 
   const imageStyle = {
     width: "100%", height: "100%", objectFit: "cover",
-    filter: "grayscale(100%) contrast(120%) pixelate(4px)" // Efek Retro
+    filter: "grayscale(100%) contrast(120%) pixelate(4px)" 
   };
 
   const btnStyle = {
@@ -87,9 +83,7 @@ export default function Home() {
     transition: "transform 0.1s"
   };
 
-  // Komponen Progress Bar Retro [|||||  ]
   const renderProgressBar = () => {
-    // Hitung jumlah batang (misal total 20 batang)
     const totalBars = 20;
     const filledBars = Math.floor((currentSupply / MAX_SUPPLY) * totalBars);
     let barString = "";
@@ -101,7 +95,6 @@ export default function Home() {
 
   return (
     <div style={containerStyle}>
-      {/* Header Kecil */}
       <div style={{width: '100%', maxWidth: '340px', display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginBottom: '5px'}}>
         <span>VOL. 1</span>
         <span>{new Date().toLocaleDateString()}</span>
@@ -111,7 +104,7 @@ export default function Home() {
         
         {/* Gambar */}
         <div style={imageContainerStyle}>
-          <img src={NFT_IMAGE} style={imageStyle} />
+          <img src={NFT_IMAGE} style={imageStyle} alt="NFT" />
           <div style={{
             position: 'absolute', top: '10px', left: '10px', 
             backgroundColor: '#000', color: '#fff', padding: '4px 8px', fontSize: '10px', fontWeight: 'bold'
@@ -125,7 +118,6 @@ export default function Home() {
             {NFT_TITLE}
           </h1>
 
-          {/* Info Utama */}
           <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '15px'}}>
             <div style={{border: '2px solid #000', padding: '8px'}}>
               <div style={{fontSize: '8px', color: '#555'}}>PRICE</div>
@@ -137,33 +129,30 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Progress Bar Visual */}
           <div style={{marginBottom: '20px'}}>
             <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginBottom: '4px'}}>
               <span>MINT PROGRESS</span>
               <span>{Math.round(progressPercent)}%</span>
             </div>
-            {/* Bar Retro Text Based */}
             <div style={{fontSize: '14px', letterSpacing: '2px', overflow: 'hidden', whiteSpace: 'nowrap', fontWeight: 'bold'}}>
               {renderProgressBar()}
             </div>
           </div>
 
-          {/* Status Transaksi */}
+          {/* Status Transaksi (SUDAH DIPERBAIKI) */}
           {isConfirmed && (
             <div style={{border: '2px dashed #000', padding: '10px', textAlign: 'center', marginBottom: '10px', fontSize: '10px'}}>
-              >>> TRANSACTION SUCCESSFUL <<<
+              {'>>> TRANSACTION SUCCESSFUL <<<'}
             </div>
           )}
 
-          {/* Tombol */}
           {!isConnected ? (
             <button onClick={() => connect({ connector: injected() })} style={btnStyle}>
               CONNECT WALLET
             </button>
           ) : isConfirmed ? (
             <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none', backgroundColor: '#fff', color: '#000'}}>
-              VIEW RECEIPT ->
+              VIEW RECEIPT {'->'}
             </a>
           ) : (
             <button 
