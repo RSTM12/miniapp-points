@@ -2,7 +2,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 // 👇 GANTI DENGAN LINK VERCEL KAMU YANG AKTIF
-const APP_URL = "https://donut-genesis.vercel.app";
+const APP_URL = "https://donut-genesis.vercel.app/";
 
 // 👇 FIX: Menggunakan tanda (+) agar tidak error syntax
 const IMAGE_URL = APP_URL + "/donut.jpg";
