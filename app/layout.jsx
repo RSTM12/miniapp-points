@@ -24,10 +24,10 @@ export const metadata = {
     // Tombol Peluncur Mini App
     "fc:frame:button:1": "OPEN APP 🍩",
     "fc:frame:button:1:action": "link", // Aksi 'link' akan membuka App/Webview
-    "fc:frame:button:1:target": APP_URL, // Link tujuan saat tombol ditekan
+    "fc:frame:button:1:target": https://donut-genesis.vercel.app, // Link tujuan saat tombol ditekan
     
     // Opsional: Link post URL (kadang dibutuhkan validator)
-    "fc:frame:post_url": `${APP_URL}/api/frame`,
+    "fc:frame:post_url": `${https://donut-genesis.vercel.app}/api/frame`,
   },
 };
 
