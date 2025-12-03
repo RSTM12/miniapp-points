@@ -5,24 +5,8 @@ import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { injected } from "wagmi/connectors";
-import sdk from "@farcaster/frame-sdk"; // Import SDK
 
-// --- KONEKTOR MANUAL KHUSUS FARCASTER ---
-const farcasterConnector = () => {
-  return injected({
-    target: () => {
-      // Kita cek apakah kita sedang di dalam Farcaster?
-      if (typeof window !== 'undefined') {
-        // Ambil provider langsung dari SDK Farcaster
-        // Ini adalah "Jembatan" yang dicari-cari selama ini
-        return sdk.wallet.getEthereumProvider();
-      }
-      return undefined;
-    },
-  });
-};
-// ----------------------------------------
-
+// Config standar Wagmi (Tanpa kode aneh-aneh)
 const config = createConfig({
   chains: [base, optimism],
   transports: {
@@ -30,7 +14,7 @@ const config = createConfig({
     [optimism.id]: http(),
   },
   connectors: [
-    farcasterConnector(), // Pakai konektor buatan kita
+    injected(), // Kita andalkan Injected standar
   ],
 });
 
@@ -43,8 +27,9 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
+  // Mencegah blank screen
   if (!mounted) {
-    return <div style={{ height: "100vh", backgroundColor: "#fff" }} />;
+    return <div style={{ height: "100vh", width: "100%", backgroundColor: "white" }}></div>;
   }
 
   return (
