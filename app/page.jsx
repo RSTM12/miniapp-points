@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import sdk from "@farcaster/frame-sdk";
 import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
 
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
-function DonutApp() {
+export default function Home() {
   const { isConnected, address } = useAccount();
   const { connect, connectors, error: connectError } = useConnect();
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
-
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
 
   // --- CONFIG ---
   const NFT_IMAGE = "/donut.jpg"; 
@@ -25,41 +23,22 @@ function DonutApp() {
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
-    const init = async () => {
-      // 1. Panggil Ready agar loading Farcaster hilang
-      sdk.actions.ready();
-      
-      // 2. TRIK SUNTIK WALLET:
-      // Ambil provider dari Farcaster SDK
-      const farcasterProvider = sdk.wallet.getEthereumProvider();
-      
-      // Paksa browser menggunakan provider ini sebagai 'window.ethereum'
-      if (farcasterProvider && typeof window !== 'undefined') {
-          window.ethereum = farcasterProvider;
-          console.log("✅ Farcaster Wallet Injected to Window!");
-      }
-      
-      setIsSDKLoaded(true);
-    };
-    
-    init();
+    sdk.actions.ready();
   }, []);
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
   const handleConnect = () => {
-    // Karena kita sudah suntik window.ethereum, kita panggil 'injected' biasa
-    const injectedConnector = connectors.find(c => c.id === 'injected');
-    if (injectedConnector) {
-        connect({ connector: injectedConnector });
-    } else if (connectors.length > 0) {
-        connect({ connector: connectors[0] });
+    // Karena kita cuma punya 1 konektor manual di providers.jsx,
+    // kita langsung panggil connectors[0]
+    if (connectors.length > 0) {
+      connect({ connector: connectors[0] });
     }
   };
 
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: isConnected ? "#000" : "#fff", color: isConnected ? "#fff" : "#000", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
 
   return (
     <div style={containerStyle}>
@@ -79,17 +58,13 @@ function DonutApp() {
 
         {!isConnected ? (
           <div>
-            <button 
-              onClick={handleConnect} 
-              style={btnStyle}
-            >
-              {/* Text berubah kalau SDK sudah siap */}
-              {isSDKLoaded ? "CONNECT WALLET" : "LOADING..."}
+            <button onClick={handleConnect} style={btnStyle}>
+              CONNECT FARCASTER
             </button>
             
             {connectError && (
                <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
-                 Error: {connectError.message.slice(0, 50)}...
+                 Error: {connectError.message}
                </div>
             )}
           </div>
@@ -103,16 +78,8 @@ function DonutApp() {
       </div>
       
       <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
-        {isConnected ? `CONNECTED: ${address.slice(0,6)}...` : "WAITING CONNECTION..."}
+        {isConnected ? `WALLET: ${address.slice(0,6)}...` : "PLEASE CONNECT WALLET"}
       </div>
     </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING...</div>}>
-      <DonutApp />
-    </Suspense>
   );
 }
