@@ -1,11 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { injected } from "wagmi/connectors";
-import { useState, useEffect } from "react";
 
+// 1. Konfigurasi Wagmi (Versi Minimalis)
 const config = createConfig({
   chains: [base, optimism],
   transports: {
@@ -13,9 +14,9 @@ const config = createConfig({
     [optimism.id]: http(),
   },
   connectors: [injected()],
-  ssr: true, // PENTING: Mengaktifkan Server Side Rendering
 });
 
+// 2. Konfigurasi React Query
 const queryClient = new QueryClient();
 
 export function Providers({ children }) {
@@ -25,9 +26,11 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // PERBAIKAN: Jika belum siap, tampilkan halaman kosong putih (bukan crash)
+  // KUNCI ANTI-CRASH DI HP:
+  // Jika browser belum siap, jangan render apapun (return null).
+  // Ini mencegah error "Hydration Mismatch" yang bikin layar hitam.
   if (!mounted) {
-    return <div style={{ visibility: "hidden" }}>{children}</div>;
+    return null;
   }
 
   return (
