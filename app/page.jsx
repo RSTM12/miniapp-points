@@ -9,31 +9,58 @@ const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppe
 
 function DonutApp() {
   const { isConnected, address } = useAccount();
-  const { connect, connectors, error: connectError } = useConnect(); // Ambil error koneksi juga
+  const { connect, connectors, error: connectError } = useConnect();
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  // Debug State
+  const [ethereumStatus, setEthereumStatus] = useState("Checking...");
 
   // --- CONFIG ---
   const NFT_IMAGE = "/donut.jpg"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
-  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET KAMU
+  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // Ganti Wallet
   
   const [currentSupply, setCurrentSupply] = useState(742); 
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
     sdk.actions.ready();
+    
+    // CEK APAKAH DOMPET TERDETEKSI DI BROWSER?
+    if (typeof window !== 'undefined') {
+        if (window.ethereum) {
+            setEthereumStatus("✅ WINDOW.ETHEREUM FOUND!");
+        } else {
+            setEthereumStatus("❌ WINDOW.ETHEREUM MISSING");
+        }
+    }
   }, []);
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
+  const handleForceConnect = () => {
+    // Paksa connect ke konektor pertama (Injected)
+    const firstConnector = connectors[0];
+    if (firstConnector) {
+        connect({ connector: firstConnector });
+    } else {
+        alert("No Connector Found!");
+    }
+  };
+
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: isConnected ? "#000" : "#fff", color: isConnected ? "#fff" : "#000", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
 
   return (
     <div style={containerStyle}>
+      {/* DEBUG INFO (Akan muncul di layar HP) */}
+      <div style={{fontSize: '10px', color: 'blue', marginBottom: '10px', textAlign: 'center', border: '1px solid blue', padding: '5px', width: '100%'}}>
+        DEBUG: {ethereumStatus}
+      </div>
+
       <div style={cardStyle}>
         <div style={{border: "3px solid #000", marginBottom: "15px"}}>
           <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
@@ -48,31 +75,19 @@ function DonutApp() {
 
         {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
 
-        {/* LOGIKA TOMBOL CONNECT */}
         {!isConnected ? (
-          <div style={{marginTop: "15px"}}>
-            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>SELECT CONNECTION:</p>
-            
-            {/* Tampilkan semua opsi connector */}
-            {connectors.map((connector) => (
-              <button 
-                key={connector.uid} 
-                onClick={() => connect({ connector })} 
-                style={{...btnStyle, backgroundColor: '#fff', color: '#000', marginBottom: '8px', fontSize: '12px'}}
-              >
-                LOGIN: {connector.name.toUpperCase()}
-              </button>
-            ))}
-            
-            {/* Pesan Error Koneksi */}
-            {connectError && (
-                <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
-                    ERROR: {connectError.message.slice(0, 50)}...
-                </div>
-            )}
+          <div>
+             <button onClick={handleForceConnect} style={btnStyle}>
+               CONNECT INTERNAL WALLET
+             </button>
+             
+             {/* Menampilkan error jika gagal */}
+             {connectError && (
+               <p style={{color: 'red', fontSize: '10px', marginTop: '5px', wordBreak: 'break-word'}}>
+                 {connectError.message}
+               </p>
+             )}
           </div>
-        ) : isConfirmed ? (
-          <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
         ) : (
           <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
             {isPending ? "PROCESSING..." : "MINT NOW"}
@@ -80,11 +95,6 @@ function DonutApp() {
         )}
         
         {txError && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{txError.message.split('.')[0]}</p>}
-      </div>
-      
-      {/* Footer Info */}
-      <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
-        {isConnected && <p>WALLET: {address.slice(0,6)}...{address.slice(-4)}</p>}
       </div>
     </div>
   );
