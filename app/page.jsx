@@ -9,37 +9,88 @@ const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppe
 
 function DonutApp() {
   const { isConnected, address } = useAccount();
-  
-  // Ambil semua opsi wallet yang tersedia di HP
-  const { connect, connectors, error: connectError } = useConnect();
-  
+  const { connect, connectors } = useConnect();
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  // --- STATE ---
+  const [walletDetected, setWalletDetected] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // --- CONFIG ---
   const NFT_IMAGE = "/donut.jpg"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
   const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // Ganti Wallet
-  
-  const [currentSupply, setCurrentSupply] = useState(742); 
-  const MAX_SUPPLY = 1000;
 
+  // --- 1. INISIALISASI SDK ---
   useEffect(() => {
     sdk.actions.ready();
   }, []);
 
-  useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
+  // --- 2. RADAR PENCARI DOMPET (LOOPING) ---
+  useEffect(() => {
+    // Fungsi pengecekan
+    const checkWallet = () => {
+      if (typeof window !== "undefined" && window.ethereum) {
+        console.log("✅ Wallet Ditemukan!");
+        setWalletDetected(true);
+        return true; // Berhenti mencari
+      }
+      return false; // Lanjut mencari
+    };
+
+    // Cek pertama kali
+    if (checkWallet()) return;
+
+    // Pasang Interval (Cek setiap 1 detik selama 10 detik)
+    const interval = setInterval(() => {
+      setRetryCount(prev => prev + 1);
+      if (checkWallet()) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    // Stop setelah 10 detik biar gak boros baterai
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  // --- FUNGSI CONNECT PINTAR ---
+  const handleSmartConnect = () => {
+    // Kita cari konektor yang "Injected" (Paling standar)
+    const injected = connectors.find(c => c.id === 'injected');
+    
+    // Atau cari yang namanya "Coinbase Wallet" (Khusus Farcaster)
+    const coinbase = connectors.find(c => c.id === 'coinbaseWalletSDK');
+
+    if (walletDetected) {
+      // Prioritas 1: Injected (Karena window.ethereum sudah terdeteksi)
+      if (injected) connect({ connector: injected });
+      else if (coinbase) connect({ connector: coinbase });
+      else if (connectors.length > 0) connect({ connector: connectors[0] });
+    } else {
+      // Kalau belum terdeteksi tapi user maksa klik, kita coba Injected
+      if (injected) connect({ connector: injected });
+      else alert("Dompet belum siap, tunggu sebentar...");
+    }
+  };
 
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "12px", border: "2px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "8px", fontSize: "12px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: isConnected ? "#000" : "#fff", color: isConnected ? "#fff" : "#000", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
 
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        {/* GAMBAR */}
-        <div style={{border: "3px solid #000", marginBottom: "15px", backgroundColor: "#eee", minHeight: "200px"}}>
+        {/* Gambar */}
+        <div style={{border: "3px solid #000", marginBottom: "15px"}}>
            <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
         
@@ -47,63 +98,37 @@ function DonutApp() {
         
         <div style={{display: 'flex', justifyContent: 'space-between', border: '2px solid #000', padding: '10px', marginBottom: '10px'}}>
             <div>PRICE: <strong>{NFT_PRICE} ETH</strong></div>
-            <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
+            <div>
+               {/* Indikator Status Dompet */}
+               WALLET: {walletDetected ? "✅ READY" : `🔍 SCANNING (${retryCount})...`}
+            </div>
         </div>
 
-        {/* STATUS SUKSES */}
-        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px'}}>TRANSACTION SUCCESSFUL</div>}
+        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
 
-        {/* LOGIKA KONEKSI WALLET */}
         {!isConnected ? (
-          <div>
-            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>SELECT WALLET:</p>
-            
-            {/* Munculkan tombol untuk SETIAP konektor yang ditemukan */}
-            {connectors.map((connector) => (
-              <button 
-                key={connector.uid} 
-                onClick={() => connect({ connector })} 
-                style={{...btnStyle, backgroundColor: '#fff', color: '#000'}}
-              >
-                LOGIN: {connector.name.toUpperCase()}
-              </button>
-            ))}
-            
-            {/* Pesan Error Koneksi */}
-            {connectError && (
-               <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
-                 Error: {connectError.message.slice(0, 50)}...
-               </div>
-            )}
-          </div>
-        ) : isConfirmed ? (
-          <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
-        ) : (
           <button 
-            onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} 
-            disabled={isPending} 
-            style={{...btnStyle, opacity: isPending ? 0.5 : 1}}
+            onClick={handleSmartConnect} 
+            style={{...btnStyle, opacity: walletDetected ? 1 : 0.5}}
+            disabled={!walletDetected} // Tombol mati kalau dompet belum ketemu
           >
+            {walletDetected ? "CONNECT WALLET" : "WAITING WALLET..."}
+          </button>
+        ) : (
+          <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
             {isPending ? "PROCESSING..." : "MINT NOW"}
           </button>
         )}
         
-        {/* Error Transaksi */}
         {txError && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{txError.message.split('.')[0]}</p>}
-      </div>
-      
-      {/* Footer */}
-      <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
-        {isConnected ? `CONNECTED: ${address.slice(0,6)}...` : "WAITING CONNECTION..."}
       </div>
     </div>
   );
 }
 
-// Suspense Wajib agar HP tidak blank saat baca URL
 export default function Home() {
   return (
-    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING...</div>}>
+    <Suspense fallback={<div>LOADING...</div>}>
       <DonutApp />
     </Suspense>
   );
