@@ -4,17 +4,21 @@ import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected } from "wagmi/connectors";
+import { injected, coinbaseWallet } from "wagmi/connectors";
 
+// Kita siapkan 2 jalur: Injected (Umum) & Coinbase (Spesifik Farcaster)
 const config = createConfig({
   chains: [base, optimism],
   transports: {
     [base.id]: http(),
     [optimism.id]: http(),
   },
-  // Hapus coinbaseWallet, kita paksa pakai injected (bawaan Farcaster)
   connectors: [
-    injected({ target: 'window.ethereum' }), // Paksa target window.ethereum
+    injected(),
+    coinbaseWallet({ 
+      appName: 'Donut Genesis',
+      preference: 'smartWalletOnly'
+    }),
   ],
 });
 
@@ -27,7 +31,11 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  // OBAT LAYAR HITAM:
+  // Jika belum siap, tampilkan layar putih bersih (jangan null/crash)
+  if (!mounted) {
+    return <div style={{ minHeight: "100vh", backgroundColor: "#fff" }} />;
+  }
 
   return (
     <WagmiProvider config={config}>
