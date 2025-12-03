@@ -30,7 +30,7 @@ function DonutApp() {
 
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "12px", border: "2px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "5px", fontSize: "12px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
 
   return (
     <div style={containerStyle}>
@@ -49,34 +49,32 @@ function DonutApp() {
         {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px'}}>TRANSACTION SUCCESSFUL</div>}
 
         {!isConnected ? (
-          <div style={{marginTop: "10px"}}>
-            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>CHOOSE CONNECTION:</p>
-            
-            {/* Tampilkan SEMUA opsi koneksi agar kamu bisa pilih yang jalan */}
-            {connectors.map((connector) => (
-              <button 
-                key={connector.uid} 
-                onClick={() => connect({ connector })} 
-                style={{...btnStyle, backgroundColor: '#fff', color: '#000'}}
-              >
-                {/* Biasanya yang jalan adalah 'Injected' atau 'Coinbase Wallet' */}
-                LOGIN: {connector.name.toUpperCase()}
-              </button>
-            ))}
+          <div>
+            {/* Tombol Langsung Connect (Pakai konektor manual kita) */}
+            <button 
+              onClick={() => connect({ connector: connectors[0] })} 
+              style={btnStyle}
+            >
+              CONNECT FARCASTER WALLET
+            </button>
             
             {connectError && (
                <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
-                 {connectError.message.slice(0, 50)}...
+                 Error: {connectError.message}
                </div>
             )}
           </div>
-        ) : isConfirmed ? (
-          <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
         ) : (
           <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
             {isPending ? "PROCESSING..." : "MINT NOW"}
           </button>
         )}
+        
+        {txError && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{txError.message.split('.')[0]}</p>}
+      </div>
+      
+      <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
+        {isConnected && <p>WALLET: {address.slice(0,6)}...{address.slice(-4)}</p>}
       </div>
     </div>
   );
