@@ -1,26 +1,28 @@
 import "./globals.css";
 import { Providers } from "./providers";
 
+// 👇 GANTI DENGAN DOMAIN BARU KAMU (WAJIB HTTPS)
+const APP_URL = "https://rstm.online"; 
+
 export const metadata = {
-  title: "DONUT GENESIS",
+  title: "Donut Genesis",
   description: "Mint Exclusive NFT",
-  openGraph: {
-    title: "DONUT GENESIS",
-    description: "Mint Exclusive NFT",
-    url: "https://donut-based.vercel.app",
-    siteName: "Donut Mint",
-    images: [{
-      url: "https://donut-based.vercel.app/donut.jpg"
-    }],
-  },
   other: {
-    "fc:frame": "vNext",
-    "fc:frame:image": "https://donut-based.vercel.app/donut.jpg",
-    "fc:frame:image:aspect_ratio": "1:1",
-    "fc:frame:button:1": "OPEN APP 🍩",
-    "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://donut-based.vercel.app",
-    "fc:frame:post_url": "https://donut-based.vercel.app",
+    // Kunci agar tombol muncul: Menunjuk ke Manifest
+    "fc:frame": JSON.stringify({
+      version: "next",
+      imageUrl: `${APP_URL}/donut.jpg`,
+      button: {
+        title: "OPEN APP 🍩",
+        action: {
+          type: "launch_frame",
+          name: "Donut App",
+          url: APP_URL,
+          splashImageUrl: `${APP_URL}/donut.jpg`,
+          splashBackgroundColor: "#000000",
+        },
+      },
+    }),
   },
 };
 
