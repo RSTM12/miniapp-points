@@ -14,7 +14,7 @@
     "next": "14.1.0",
     "lucide-react": "^0.344.0",
     "@farcaster/frame-sdk": "^0.0.14",
-    "@privy-io/react-auth": "^1.58.0",
+    "@privy-io/react-auth": "^1.60.0",
     "viem": "^2.7.1"
   },
   "devDependencies": {
