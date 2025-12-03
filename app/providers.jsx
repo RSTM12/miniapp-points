@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector"; // Import alat khusus
+import { injected } from "wagmi/connectors";
 
+// Config standar yang pasti jalan
 const config = createConfig({
   chains: [base, optimism],
   transports: {
@@ -13,7 +14,7 @@ const config = createConfig({
     [optimism.id]: http(),
   },
   connectors: [
-    farcasterMiniApp() // Gunakan connector khusus Farcaster
+    injected(), // Fokus ke Injected (Wallet Bawaan HP)
   ],
 });
 
@@ -26,8 +27,9 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
+  // Mencegah blank screen
   if (!mounted) {
-    return null;
+    return <div style={{ height: "100vh", backgroundColor: "white" }}></div>;
   }
 
   return (
