@@ -6,7 +6,7 @@ import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { injected } from "wagmi/connectors";
 
-// 1. Konfigurasi Wagmi (Versi Minimalis)
+// Config tanpa auto-connect yang agresif
 const config = createConfig({
   chains: [base, optimism],
   transports: {
@@ -16,7 +16,6 @@ const config = createConfig({
   connectors: [injected()],
 });
 
-// 2. Konfigurasi React Query
 const queryClient = new QueryClient();
 
 export function Providers({ children }) {
@@ -26,11 +25,9 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // KUNCI ANTI-CRASH DI HP:
-  // Jika browser belum siap, jangan render apapun (return null).
-  // Ini mencegah error "Hydration Mismatch" yang bikin layar hitam.
+  // Jika belum siap, tampilkan layar kosong putih (bukan hitam crash)
   if (!mounted) {
-    return null;
+    return <div style={{ minHeight: "100vh", backgroundColor: "#fff" }} />;
   }
 
   return (
