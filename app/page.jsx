@@ -8,6 +8,7 @@ import { parseEther } from "viem";
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
 export default function Home() {
+  // Hook Privy (Pengganti Wagmi)
   const { ready, authenticated, login, user } = usePrivy();
   const { wallets } = useWallets();
   
@@ -24,25 +25,32 @@ export default function Home() {
     sdk.actions.ready();
   }, []);
 
+  // Fungsi Bayar pakai Wallet Privy
   const handleMint = async () => {
+    // Ambil wallet yang aktif
     const wallet = wallets[0];
     if (!wallet) return;
     
     setIsMinting(true);
-    setTxStatus("PREPARING...");
+    setTxStatus("PREPARING TRANSACTION...");
     
     try {
+      // 1. Ambil provider Ethereum dari wallet Privy
       const provider = await wallet.getEthereumProvider();
+      
+      // 2. Kirim Transaksi (Manual via Provider)
       const txHash = await provider.request({
         method: "eth_sendTransaction",
         params: [{
           from: wallet.address,
           to: RECEIVER,
-          value: parseEther(NFT_PRICE).toString(16),
+          value: parseEther(NFT_PRICE).toString(16), // Convert ke Hex
         }],
       });
+      
       setTxStatus("SUCCESS! HASH: " + txHash.slice(0, 6) + "...");
     } catch (err) {
+      console.error(err);
       setTxStatus("FAILED: " + err.message.slice(0, 20));
     } finally {
       setIsMinting(false);
@@ -53,12 +61,15 @@ export default function Home() {
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
   const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "15px", ...retroFont };
 
-  if (!ready) return <div style={{...containerStyle}}>LOADING SYSTEM...</div>;
+  // Loading Screen Privy
+  if (!ready) {
+    return <div style={{...containerStyle, justifyContent: 'center'}}>LOADING SYSTEM...</div>;
+  }
 
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <div style={{border: "3px solid #000", marginBottom: "15px", backgroundColor: "#eee"}}>
+        <div style={{border: "3px solid #000", marginBottom: "15px", backgroundColor: "#eee", minHeight: "200px"}}>
           <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
         
@@ -69,16 +80,36 @@ export default function Home() {
             <div>STATUS: <strong>{authenticated ? "LOGGED IN" : "GUEST"}</strong></div>
         </div>
 
-        {txStatus && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px'}}>{txStatus}</div>}
+        {/* STATUS TRANSAKSI */}
+        {txStatus && (
+          <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px', fontSize: '10px'}}>
+            {txStatus}
+          </div>
+        )}
 
+        {/* LOGIKA TOMBOL PRIVY */}
         {!authenticated ? (
-          <button onClick={login} style={btnStyle}>LOGIN WITH FARCASTER</button>
+          <button onClick={login} style={btnStyle}>
+            LOGIN WITH FARCASTER
+          </button>
         ) : (
-          <button onClick={handleMint} disabled={isMinting} style={{...btnStyle, opacity: isMinting ? 0.5 : 1}}>
+          <button 
+            onClick={handleMint} 
+            disabled={isMinting} 
+            style={{...btnStyle, opacity: isMinting ? 0.5 : 1}}
+          >
             {isMinting ? "MINTING..." : "MINT NOW"}
           </button>
         )}
+        
       </div>
+      
+      {authenticated && wallets[0] && (
+        <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
+          <p>ACCOUNT: {user?.farcaster?.username || "User"}</p>
+          <p>WALLET: {wallets[0].address.slice(0,6)}...{wallets[0].address.slice(-4)}</p>
+        </div>
+      )}
     </div>
   );
 }
