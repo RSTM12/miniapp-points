@@ -19,14 +19,14 @@ export default function Home() {
   const NFT_IMAGE = "/donut.jpg"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
-  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // Ganti Wallet
+  // GANTI ALAMAT DI BAWAH INI DENGAN WALLET KAMU
+  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; 
   
   const [currentSupply, setCurrentSupply] = useState(742); 
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
     const load = async () => {
-      // Panggil ready
       sdk.actions.ready();
     };
 
@@ -36,8 +36,7 @@ export default function Home() {
       connect({ connector: injected() });
     }
     
-    // --- PENGAMAN BLANK SCREEN ---
-    // Paksa ready setelah 500ms buat jaga-jaga kalau HP lemot
+    // PENGAMAN: Paksa ready setelah 0.5 detik (Solusi Layar Hitam di HP)
     setTimeout(() => {
       sdk.actions.ready();
     }, 500);
@@ -64,7 +63,8 @@ export default function Home() {
             <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
         </div>
 
-        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>{'>>> SUCCESS <<<'}</div>}
+        {/* Teks Sukses (Tanpa simbol aneh biar aman) */}
+        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
 
         {!isConnected ? (
           <button onClick={() => connect({ connector: injected() })} style={btnStyle}>CONNECT WALLET</button>
