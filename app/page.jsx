@@ -9,7 +9,10 @@ const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppe
 
 function DonutApp() {
   const { isConnected, address } = useAccount();
-  const { connect, connectors } = useConnect();
+  
+  // Ambil semua opsi wallet yang tersedia di HP
+  const { connect, connectors, error: connectError } = useConnect();
+  
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
@@ -28,29 +31,16 @@ function DonutApp() {
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
-  // FUNGSI CONNECT PINTAR
-  const handleConnect = () => {
-    // 1. Cari dompet internal (biasanya id-nya 'injected' atau 'coinbaseWalletSDK')
-    // Di Farcaster mobile, Injected seringkali yang paling benar.
-    const internalWallet = connectors.find(c => c.id === 'injected');
-    
-    if (internalWallet) {
-        connect({ connector: internalWallet });
-    } else if (connectors.length > 0) {
-        // Fallback ke yang pertama ketemu
-        connect({ connector: connectors[0] });
-    }
-  };
-
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: isConnected ? "#000" : "#fff", color: isConnected ? "#fff" : "#000", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "12px", border: "2px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "8px", fontSize: "12px", ...retroFont };
 
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <div style={{border: "3px solid #000", marginBottom: "15px"}}>
-          <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
+        {/* GAMBAR */}
+        <div style={{border: "3px solid #000", marginBottom: "15px", backgroundColor: "#eee", minHeight: "200px"}}>
+           <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
         
         <h1 style={{fontSize: "20px", borderBottom: "3px solid #000", paddingBottom: "10px", margin: "0 0 10px 0"}}>{NFT_TITLE}</h1>
@@ -60,30 +50,60 @@ function DonutApp() {
             <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
         </div>
 
-        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
+        {/* STATUS SUKSES */}
+        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px'}}>TRANSACTION SUCCESSFUL</div>}
 
+        {/* LOGIKA KONEKSI WALLET */}
         {!isConnected ? (
-          <button onClick={handleConnect} style={btnStyle}>
-            CONNECT WALLET
-          </button>
+          <div>
+            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>SELECT WALLET:</p>
+            
+            {/* Munculkan tombol untuk SETIAP konektor yang ditemukan */}
+            {connectors.map((connector) => (
+              <button 
+                key={connector.uid} 
+                onClick={() => connect({ connector })} 
+                style={{...btnStyle, backgroundColor: '#fff', color: '#000'}}
+              >
+                LOGIN: {connector.name.toUpperCase()}
+              </button>
+            ))}
+            
+            {/* Pesan Error Koneksi */}
+            {connectError && (
+               <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
+                 Error: {connectError.message.slice(0, 50)}...
+               </div>
+            )}
+          </div>
         ) : isConfirmed ? (
           <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
         ) : (
-          <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
+          <button 
+            onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} 
+            disabled={isPending} 
+            style={{...btnStyle, opacity: isPending ? 0.5 : 1}}
+          >
             {isPending ? "PROCESSING..." : "MINT NOW"}
           </button>
         )}
         
+        {/* Error Transaksi */}
         {txError && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{txError.message.split('.')[0]}</p>}
+      </div>
+      
+      {/* Footer */}
+      <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
+        {isConnected ? `CONNECTED: ${address.slice(0,6)}...` : "WAITING CONNECTION..."}
       </div>
     </div>
   );
 }
 
-// Suspense Wajib
+// Suspense Wajib agar HP tidak blank saat baca URL
 export default function Home() {
   return (
-    <Suspense fallback={<div>LOADING...</div>}>
+    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING...</div>}>
       <DonutApp />
     </Suspense>
   );
