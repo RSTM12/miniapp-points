@@ -8,17 +8,16 @@ import { injected } from "wagmi/connectors";
 
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
-// 1. KITA PISAHKAN LOGIKA UTAMA KE KOMPONEN TERPISAH
-function DonutContent() {
+// Komponen Isi Donat
+function DonutApp() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const { isConnected } = useAccount();
   const { connect } = useConnect();
   const { data: hash, sendTransaction, isPending, error } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-  // --- CONFIG ---
   const NFT_IMAGE = "/donut.jpg"; 
-  const NFT_TITLE = "Donut GENESIS #777";
+  const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
   const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // Ganti Wallet
   
@@ -26,26 +25,24 @@ function DonutContent() {
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
-    const load = async () => {
-      // Panggil ready
-      sdk.actions.ready();
+    // Panggil ready secepat mungkin
+    const init = async () => {
+      sdk.actions.ready(); 
     };
-
-    // Cek SDK
-    if (sdk && !isSDKLoaded) {
-      setIsSDKLoaded(true);
-      load();
-      // Auto connect hanya jika diperlukan
-      connect({ connector: injected() });
-    }
+    init();
     
-    // PENGAMAN DOUBLE: Paksa ready lagi setelah 1 detik
-    const timer = setTimeout(() => {
+    // Panggil lagi setelah 1 detik (Backup)
+    setTimeout(() => {
         sdk.actions.ready();
+        setIsSDKLoaded(true);
     }, 1000);
+  }, []);
 
-    return () => clearTimeout(timer);
-  }, [isSDKLoaded, connect]);
+  useEffect(() => { 
+    if (isSDKLoaded && !isConnected) {
+        connect({ connector: injected() });
+    }
+  }, [isSDKLoaded, isConnected, connect]);
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
@@ -85,11 +82,11 @@ function DonutContent() {
   );
 }
 
-// 2. KITA BUNGKUS DENGAN SUSPENSE AGAR TIDAK CRASH DI HP
+// Bungkus dengan Suspense untuk menangkal error URL parameter di HP
 export default function Home() {
   return (
-    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING DONUT APP...</div>}>
-      <DonutContent />
+    <Suspense fallback={<div style={{padding: 20, textAlign: 'center', fontFamily: 'monospace'}}>INITIALIZING...</div>}>
+      <DonutApp />
     </Suspense>
   );
 }
