@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import sdk from "@farcaster/frame-sdk";
 import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
 
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
-function DonutApp() {
+export default function Home() {
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const { isConnected, address } = useAccount();
   const { connect, connectors, error: connectError } = useConnect();
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
@@ -23,24 +24,29 @@ function DonutApp() {
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
-    // Panggil ready
-    sdk.actions.ready();
+    // Panggil ready langsung tanpa syarat
+    if (typeof window !== "undefined") {
+      sdk.actions.ready();
+      setIsSDKLoaded(true);
+    }
   }, []);
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: isConnected ? "#000" : "#fff", color: isConnected ? "#fff" : "#000", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
+
+  // Jika error hydration terjadi, tampilkan fallback sederhana
+  if (!isSDKLoaded) {
+    // Kita biarkan render berjalan, jangan return null di sini
+  }
 
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
         <div style={{border: "3px solid #000", marginBottom: "15px"}}>
-          {/* Gambar Donat */}
-          <div style={{backgroundColor: "#eee", minHeight: "200px"}}>
-             <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
-          </div>
+          <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
         
         <h1 style={{fontSize: "20px", borderBottom: "3px solid #000", paddingBottom: "10px", margin: "0 0 10px 0"}}>{NFT_TITLE}</h1>
@@ -52,30 +58,20 @@ function DonutApp() {
 
         {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
 
-        {/* LOGIKA TOMBOL CONNECT YANG AMAN */}
         {!isConnected ? (
-          <div style={{marginTop: "15px"}}>
+          <div>
             <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>SELECT WALLET:</p>
-            
-            {/* Tampilkan Pilihan agar user bisa mencoba mana yang jalan */}
             {connectors.map((connector) => (
               <button 
                 key={connector.uid} 
                 onClick={() => connect({ connector })} 
-                style={{...btnStyle, backgroundColor: '#fff', color: '#000', marginBottom: '5px', fontSize: '12px'}}
+                style={{...btnStyle, backgroundColor: '#fff', color: '#000', marginBottom: '5px', fontSize: '10px'}}
               >
                 {connector.name.toUpperCase()}
               </button>
             ))}
-            
-            {connectError && (
-               <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
-                 {connectError.message.slice(0,40)}...
-               </div>
-            )}
+            {connectError && <p style={{color: 'red', fontSize: '10px'}}>{connectError.message.slice(0,30)}...</p>}
           </div>
-        ) : isConfirmed ? (
-          <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
         ) : (
           <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
             {isPending ? "PROCESSING..." : "MINT NOW"}
@@ -84,15 +80,10 @@ function DonutApp() {
         
         {txError && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{txError.message.split('.')[0]}</p>}
       </div>
+      
+      <div style={{marginTop: "20px", fontSize: "10px", color: "#888"}}>
+        APP READY v2
+      </div>
     </div>
-  );
-}
-
-// Suspense Wajib agar tidak crash di HP
-export default function Home() {
-  return (
-    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING...</div>}>
-      <DonutApp />
-    </Suspense>
   );
 }
