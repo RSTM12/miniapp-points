@@ -1,6 +1,18 @@
 {
-  "name": "Points Mini App",
-  "short_description": "Mine points",
-  "description": "Simple Farcaster Mini App for mining points",
-  "start_url": "/"
+  "accountAssociation": {
+    "header": "eyJmaWQiOjE3NDMsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg1MkY1NDI2MjZBZjM2NzQ1NWE0N2MwNzE1MGI1ZDI2NTAzNTI4NjVGIn0",
+    "payload": "eyJkb21haW4iOiJkb25hdGtlcmVuLmNvbSJ9",
+    "signature": "MHg1..."
+  },
+  "frame": {
+    "version": "1",
+    "name": "Donut Genesis",
+    "iconUrl": "https://rstm.online/donut.jpg",
+    "homeUrl": "https://rstm.online",
+    "imageUrl": "https://rstm.online/donut.jpg",
+    "buttonTitle": "OPEN APP 🍩",
+    "splashImageUrl": "https://rstm.online/donut.jpg",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://rstm.online/api/webhook"
+  }
 }
