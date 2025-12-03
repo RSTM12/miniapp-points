@@ -8,12 +8,8 @@ import { parseEther } from "viem";
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
 function DonutApp() {
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const { isConnected, address } = useAccount();
-  
-  // Ambil semua opsi koneksi & error koneksi
-  const { connect, connectors, error: connectError } = useConnect();
-  
+  const { connect, connectors, error: connectError } = useConnect(); // Ambil error koneksi juga
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
@@ -21,24 +17,14 @@ function DonutApp() {
   const NFT_IMAGE = "/donut.jpg"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
-  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // Ganti Wallet
+  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET KAMU
   
   const [currentSupply, setCurrentSupply] = useState(742); 
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
-    const load = async () => {
-      sdk.actions.ready();
-    };
-    if (sdk && !isSDKLoaded) {
-      setIsSDKLoaded(true);
-      load();
-    }
-    // Pengaman
-    setTimeout(() => {
-        sdk.actions.ready();
-    }, 1000);
-  }, [isSDKLoaded]);
+    sdk.actions.ready();
+  }, []);
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
@@ -62,27 +48,26 @@ function DonutApp() {
 
         {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
 
-        {/* --- BAGIAN CONNECT WALLET --- */}
+        {/* LOGIKA TOMBOL CONNECT */}
         {!isConnected ? (
-          <div>
-            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>SELECT WALLET:</p>
+          <div style={{marginTop: "15px"}}>
+            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>SELECT CONNECTION:</p>
             
-            {/* Kita Munculkan Semua Opsi yang Terdeteksi */}
+            {/* Tampilkan semua opsi connector */}
             {connectors.map((connector) => (
               <button 
                 key={connector.uid} 
                 onClick={() => connect({ connector })} 
-                style={{...btnStyle, backgroundColor: '#fff', color: '#000', marginBottom: '5px'}}
+                style={{...btnStyle, backgroundColor: '#fff', color: '#000', marginBottom: '8px', fontSize: '12px'}}
               >
-                {/* Biasanya di HP namanya 'Injected' */}
-                CONNECT: {connector.name.toUpperCase()}
+                LOGIN: {connector.name.toUpperCase()}
               </button>
             ))}
             
-            {/* Pesan Error Koneksi jika ada */}
+            {/* Pesan Error Koneksi */}
             {connectError && (
                 <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
-                    GAGAL: {connectError.message}
+                    ERROR: {connectError.message.slice(0, 50)}...
                 </div>
             )}
           </div>
@@ -99,8 +84,7 @@ function DonutApp() {
       
       {/* Footer Info */}
       <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
-        <p>DETECTED WALLETS: {connectors.length}</p>
-        {isConnected && <p>CONNECTED: {address.slice(0,6)}...{address.slice(-4)}</p>}
+        {isConnected && <p>WALLET: {address.slice(0,6)}...{address.slice(-4)}</p>}
       </div>
     </div>
   );
