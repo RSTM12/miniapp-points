@@ -6,7 +6,6 @@ import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceip
 import { parseEther } from "viem";
 import { injected } from "wagmi/connectors";
 
-// Font gaya retro
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
 export default function Home() {
@@ -17,18 +16,32 @@ export default function Home() {
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   // --- CONFIG ---
-  // 👇 Menggunakan file donut.jpg yang ada di folder public
   const NFT_IMAGE = "/donut.jpg"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
-  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET KAMU
+  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // Ganti Wallet
   
   const [currentSupply, setCurrentSupply] = useState(742); 
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
-    sdk.actions.ready();
-    if (!isSDKLoaded) { setIsSDKLoaded(true); connect({ connector: injected() }); }
+    const load = async () => {
+      // Panggil ready
+      sdk.actions.ready();
+    };
+
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
+      load();
+      connect({ connector: injected() });
+    }
+    
+    // --- PENGAMAN BLANK SCREEN ---
+    // Paksa ready setelah 500ms buat jaga-jaga kalau HP lemot
+    setTimeout(() => {
+      sdk.actions.ready();
+    }, 500);
+
   }, [isSDKLoaded, connect]);
 
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
@@ -40,7 +53,6 @@ export default function Home() {
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        {/* Gambar NFT */}
         <div style={{border: "3px solid #000", marginBottom: "15px"}}>
           <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
@@ -52,7 +64,6 @@ export default function Home() {
             <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
         </div>
 
-        {/* 👇 BAGIAN INI SUDAH DIPERBAIKI (Tidak akan error merah lagi) */}
         {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>{'>>> SUCCESS <<<'}</div>}
 
         {!isConnected ? (
