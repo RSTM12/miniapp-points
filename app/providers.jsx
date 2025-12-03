@@ -2,18 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { base } from "wagmi/chains"; // Cuma pakai Base biar ringan
+import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected } from "wagmi/connectors";
+import { injected, coinbaseWallet } from "wagmi/connectors";
 
-// Config Minimalis Anti-Crash
 const config = createConfig({
-  chains: [base],
+  chains: [base, optimism],
   transports: {
     [base.id]: http(),
+    [optimism.id]: http(),
   },
   connectors: [
-    injected(), // Hanya injected standar
+    injected(),
+    coinbaseWallet({ 
+      appName: 'Donut App',
+      preference: 'smartWalletOnly'
+    }),
   ],
 });
 
@@ -26,8 +30,22 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // Jika belum siap, return null (jangan render apapun)
-  if (!mounted) return null;
+  // PERUBAHAN PENTING:
+  // Jangan return null. Tampilkan teks Loading agar kita tahu aplikasi hidup.
+  if (!mounted) {
+    return (
+      <div style={{ 
+        height: "100vh", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center", 
+        backgroundColor: "black", 
+        color: "white" 
+      }}>
+        <h1>SYSTEM LOADING...</h1>
+      </div>
+    );
+  }
 
   return (
     <WagmiProvider config={config}>
