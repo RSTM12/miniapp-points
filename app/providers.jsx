@@ -2,23 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { base, optimism } from "wagmi/chains";
+import { base } from "wagmi/chains"; // Cuma pakai Base biar ringan
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected, coinbaseWallet } from "wagmi/connectors";
+import { injected } from "wagmi/connectors";
 
-// Kita siapkan 2 jalur: Injected (Umum) & Coinbase (Spesifik Farcaster)
+// Config Minimalis Anti-Crash
 const config = createConfig({
-  chains: [base, optimism],
+  chains: [base],
   transports: {
     [base.id]: http(),
-    [optimism.id]: http(),
   },
   connectors: [
-    injected(),
-    coinbaseWallet({ 
-      appName: 'Donut Genesis',
-      preference: 'smartWalletOnly'
-    }),
+    injected(), // Hanya injected standar
   ],
 });
 
@@ -31,11 +26,8 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // OBAT LAYAR HITAM:
-  // Jika belum siap, tampilkan layar putih bersih (jangan null/crash)
-  if (!mounted) {
-    return <div style={{ minHeight: "100vh", backgroundColor: "#fff" }} />;
-  }
+  // Jika belum siap, return null (jangan render apapun)
+  if (!mounted) return null;
 
   return (
     <WagmiProvider config={config}>
