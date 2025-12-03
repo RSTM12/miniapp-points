@@ -9,7 +9,7 @@ const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppe
 
 function DonutApp() {
   const { isConnected, address } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connect, connectors, error: connectError } = useConnect();
   const { data: hash, sendTransaction, isPending, error: txError } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
@@ -30,13 +30,13 @@ function DonutApp() {
 
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
-  const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "10px", ...retroFont };
+  const btnStyle = { width: "100%", padding: "12px", border: "2px solid #000", backgroundColor: "#000", color: "#fff", fontWeight: "bold", cursor: "pointer", marginTop: "5px", fontSize: "12px", ...retroFont };
 
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        <div style={{border: "3px solid #000", marginBottom: "15px"}}>
-          <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
+        <div style={{border: "3px solid #000", marginBottom: "15px", backgroundColor: "#eee", minHeight: "200px"}}>
+           <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
         
         <h1 style={{fontSize: "20px", borderBottom: "3px solid #000", paddingBottom: "10px", margin: "0 0 10px 0"}}>{NFT_TITLE}</h1>
@@ -46,28 +46,37 @@ function DonutApp() {
             <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
         </div>
 
-        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
+        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px'}}>TRANSACTION SUCCESSFUL</div>}
 
         {!isConnected ? (
-          // Cukup panggil connector pertama (karena cuma ada 1 yaitu Farcaster)
-          <button 
-            onClick={() => connect({ connector: connectors[0] })} 
-            style={btnStyle}
-          >
-            CONNECT WALLET
-          </button>
+          <div style={{marginTop: "10px"}}>
+            <p style={{fontSize: '10px', textAlign: 'center', marginBottom: '5px'}}>CHOOSE CONNECTION:</p>
+            
+            {/* Tampilkan SEMUA opsi koneksi agar kamu bisa pilih yang jalan */}
+            {connectors.map((connector) => (
+              <button 
+                key={connector.uid} 
+                onClick={() => connect({ connector })} 
+                style={{...btnStyle, backgroundColor: '#fff', color: '#000'}}
+              >
+                {/* Biasanya yang jalan adalah 'Injected' atau 'Coinbase Wallet' */}
+                LOGIN: {connector.name.toUpperCase()}
+              </button>
+            ))}
+            
+            {connectError && (
+               <div style={{color: 'red', fontSize: '10px', marginTop: '5px', border: '1px solid red', padding: '5px'}}>
+                 {connectError.message.slice(0, 50)}...
+               </div>
+            )}
+          </div>
+        ) : isConfirmed ? (
+          <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
         ) : (
           <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
             {isPending ? "PROCESSING..." : "MINT NOW"}
           </button>
         )}
-        
-        {txError && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{txError.message.split('.')[0]}</p>}
-      </div>
-      
-      {/* Footer Info */}
-      <div style={{marginTop: "20px", fontSize: "10px", color: "#888", textAlign: 'center'}}>
-        {isConnected && <p>WALLET: {address.slice(0,6)}...{address.slice(-4)}</p>}
       </div>
     </div>
   );
@@ -75,7 +84,7 @@ function DonutApp() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<div>LOADING...</div>}>
+    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING...</div>}>
       <DonutApp />
     </Suspense>
   );
