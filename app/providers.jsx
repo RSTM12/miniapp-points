@@ -4,16 +4,23 @@ import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected } from "wagmi/connectors";
+import { injected, coinbaseWallet } from "wagmi/connectors"; // Tambah import coinbaseWallet
 
-// Config tanpa auto-connect yang agresif
 const config = createConfig({
   chains: [base, optimism],
   transports: {
     [base.id]: http(),
     [optimism.id]: http(),
   },
-  connectors: [injected()],
+  connectors: [
+    // 1. Jalur Injected (Standar)
+    injected(),
+    // 2. Jalur Coinbase (Sangat Penting untuk Farcaster Mobile)
+    coinbaseWallet({ 
+      appName: 'Donut Genesis',
+      preference: 'smartWalletOnly' // Prioritaskan Smart Wallet (bawaan Farcaster)
+    }),
+  ],
 });
 
 const queryClient = new QueryClient();
@@ -25,9 +32,8 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // Jika belum siap, tampilkan layar kosong putih (bukan hitam crash)
   if (!mounted) {
-    return <div style={{ minHeight: "100vh", backgroundColor: "#fff" }} />;
+    return null;
   }
 
   return (
