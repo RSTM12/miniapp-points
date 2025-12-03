@@ -6,6 +6,7 @@ import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceip
 import { parseEther } from "viem";
 import { injected } from "wagmi/connectors";
 
+// Font gaya retro
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
 export default function Home() {
@@ -19,8 +20,7 @@ export default function Home() {
   const NFT_IMAGE = "/donut.jpg"; 
   const NFT_TITLE = "DONUT GENESIS #777";
   const NFT_PRICE = "0.00005";
-  // GANTI ALAMAT DI BAWAH INI DENGAN WALLET KAMU
-  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; 
+  const RECEIVER = "0x6894ba473eAc0C4D48D1998519070063EcB716c5"; // ⚠️ GANTI WALLET KAMU
   
   const [currentSupply, setCurrentSupply] = useState(742); 
   const MAX_SUPPLY = 1000;
@@ -63,8 +63,12 @@ export default function Home() {
             <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
         </div>
 
-        {/* Teks Sukses (Tanpa simbol aneh biar aman) */}
-        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
+        {/* Status Transaksi (Teks Biasa agar Aman) */}
+        {isConfirmed && (
+          <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginTop: '10px'}}>
+            TRANSACTION SUCCESSFUL
+          </div>
+        )}
 
         {!isConnected ? (
           <button onClick={() => connect({ connector: injected() })} style={btnStyle}>CONNECT WALLET</button>
