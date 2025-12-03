@@ -4,9 +4,8 @@ import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected } from "wagmi/connectors";
+import { farcasterFrameConnector } from "./utils/farcasterConnector"; // Import konektor manual
 
-// Config standar Wagmi (Tanpa kode aneh-aneh)
 const config = createConfig({
   chains: [base, optimism],
   transports: {
@@ -14,7 +13,7 @@ const config = createConfig({
     [optimism.id]: http(),
   },
   connectors: [
-    injected(), // Kita andalkan Injected standar
+    farcasterFrameConnector(), // Gunakan konektor buatan kita
   ],
 });
 
@@ -27,10 +26,7 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // Mencegah blank screen
-  if (!mounted) {
-    return <div style={{ height: "100vh", width: "100%", backgroundColor: "white" }}></div>;
-  }
+  if (!mounted) return null;
 
   return (
     <WagmiProvider config={config}>
