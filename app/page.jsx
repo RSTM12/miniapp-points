@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import sdk from "@farcaster/frame-sdk";
 import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
-import { injected } from "wagmi/connectors";
 
 const retroFont = { fontFamily: "'Courier New', monospace", textTransform: 'uppercase', letterSpacing: '1px' };
 
-export default function Home() {
+function DonutApp() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const { isConnected } = useAccount();
-  const { connect } = useConnect();
+  
+  // 👇 PERBAIKAN: Ambil daftar 'connectors' yang sudah siap
+  const { connect, connectors } = useConnect();
+  
   const { data: hash, sendTransaction, isPending, error } = useSendTransaction();
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
@@ -25,30 +27,41 @@ export default function Home() {
   const MAX_SUPPLY = 1000;
 
   useEffect(() => {
-    // Panggil ready secepat mungkin agar Splash Screen Farcaster hilang
-    sdk.actions.ready();
-    setIsSDKLoaded(true);
-  }, []);
+    const load = async () => {
+      sdk.actions.ready();
+    };
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
+      load();
+    }
+  }, [isSDKLoaded]);
 
-  // UPDATE SUPPLY LOGIC
   useEffect(() => { if (isConfirmed) setCurrentSupply(prev => prev + 1); }, [isConfirmed]);
 
-  // STYLES
+  // 👇 FUNGSI BARU UNTUK CONNECT SMART
+  const handleConnect = () => {
+    // 1. Cari connector bawaan (Injected)
+    const injectedConnector = connectors.find((c) => c.id === 'injected');
+    
+    // 2. Jika ada, pakai itu. Jika tidak, pakai yang pertama tersedia.
+    if (injectedConnector) {
+      connect({ connector: injectedConnector });
+    } else if (connectors.length > 0) {
+      connect({ connector: connectors[0] });
+    } else {
+      alert("No wallet found");
+    }
+  };
+
   const containerStyle = { minHeight: "100vh", backgroundColor: "#fff", color: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", ...retroFont };
   const cardStyle = { width: "100%", maxWidth: "340px", border: "3px solid #000", padding: "5px", boxShadow: "8px 8px 0px #000" };
   const btnStyle = { width: "100%", padding: "15px", border: "3px solid #000", backgroundColor: isConnected ? "#000" : "#fff", color: isConnected ? "#fff" : "#000", fontWeight: "bold", cursor: "pointer", marginTop: "15px", ...retroFont };
 
-  // RENDER TAMPILAN
   return (
     <div style={containerStyle}>
       <div style={cardStyle}>
-        
-        {/* GAMBAR DONAT */}
         <div style={{border: "3px solid #000", marginBottom: "15px"}}>
-          {/* Tambahkan fallback background abu-abu biar tidak blink */}
-          <div style={{backgroundColor: "#eee", minHeight: "200px"}}>
-             <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
-          </div>
+          <img src={NFT_IMAGE} style={{width: "100%", display: "block", filter: "grayscale(100%) contrast(120%) pixelate(4px)"}} alt="NFT" />
         </div>
         
         <h1 style={{fontSize: "20px", borderBottom: "3px solid #000", paddingBottom: "10px", margin: "0 0 10px 0"}}>{NFT_TITLE}</h1>
@@ -58,37 +71,29 @@ export default function Home() {
             <div>MINTED: <strong>{currentSupply}/{MAX_SUPPLY}</strong></div>
         </div>
 
-        {/* STATUS PESAN */}
-        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000', marginBottom: '10px'}}>TRANSACTION SUCCESSFUL</div>}
+        {isConfirmed && <div style={{textAlign: 'center', padding: '10px', border: '2px dashed #000'}}>TRANSACTION SUCCESSFUL</div>}
 
-        {/* TOMBOL AKSI */}
         {!isConnected ? (
-          // Tombol Connect Manual (Lebih Aman untuk HP)
-          <button 
-            onClick={() => connect({ connector: injected() })} 
-            style={btnStyle}
-          >
-            CONNECT WALLET
-          </button>
+          // 👇 Panggil fungsi handleConnect yang baru
+          <button onClick={handleConnect} style={btnStyle}>CONNECT WALLET</button>
         ) : isConfirmed ? (
           <a href={`https://basescan.org/tx/${hash}`} target="_blank" style={{...btnStyle, display: 'block', textAlign: 'center', textDecoration: 'none'}}>VIEW RECEIPT</a>
         ) : (
-          <button 
-            onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} 
-            disabled={isPending} 
-            style={{...btnStyle, opacity: isPending ? 0.5 : 1}}
-          >
+          <button onClick={() => sendTransaction({ to: RECEIVER, value: parseEther(NFT_PRICE) })} disabled={isPending} style={{...btnStyle, opacity: isPending ? 0.5 : 1}}>
             {isPending ? "PROCESSING..." : "MINT NOW"}
           </button>
         )}
         
         {error && <p style={{color: 'red', fontSize: '10px', marginTop: '5px'}}>{error.message.split('.')[0]}</p>}
       </div>
-      
-      {/* Footer Indikator */}
-      <div style={{marginTop: "20px", fontSize: "10px", color: "#888"}}>
-        {isSDKLoaded ? "SYSTEM: ONLINE" : "SYSTEM: LOADING..."}
-      </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div style={{padding: 20, textAlign: 'center'}}>LOADING...</div>}>
+      <DonutApp />
+    </Suspense>
   );
 }
