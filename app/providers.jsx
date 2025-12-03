@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createConfig, http, WagmiProvider } from "wagmi";
 import { base, optimism } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { injected, coinbaseWallet } from "wagmi/connectors";
+import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector"; // Import alat khusus
 
 const config = createConfig({
   chains: [base, optimism],
@@ -13,14 +13,8 @@ const config = createConfig({
     [optimism.id]: http(),
   },
   connectors: [
-    // Urutan penting: Injected duluan!
-    injected(), 
-    coinbaseWallet({ 
-      appName: 'Donut Genesis',
-      preference: 'smartWalletOnly'
-    }),
+    farcasterMiniApp() // Gunakan connector khusus Farcaster
   ],
-  ssr: true, // Wajib true biar gak blank
 });
 
 const queryClient = new QueryClient();
@@ -32,9 +26,8 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // Ini obat anti-blank screen yang terbukti ampuh
   if (!mounted) {
-    return <div style={{ height: "100vh", backgroundColor: "#fff" }} />;
+    return null;
   }
 
   return (
