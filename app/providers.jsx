@@ -6,7 +6,7 @@ export function Providers({ children }) {
   return (
     <PrivyProvider
       // 👇 PASTE APP ID DARI DASHBOARD PRIVY DI SINI
-      appId="MASUKKAN_APP_ID_PRIVY_KAMU_DISINI"
+      appId="cmipl0tph003bl70c1vk6wajs"
       config={{
         appearance: {
           theme: "dark",
