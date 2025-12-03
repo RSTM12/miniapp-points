@@ -13,7 +13,7 @@ const config = createConfig({
     [optimism.id]: http(),
   },
   connectors: [injected()],
-  ssr: true, // Tambahkan ini agar aman saat SSR
+  ssr: true, // PENTING: Mengaktifkan Server Side Rendering
 });
 
 const queryClient = new QueryClient();
@@ -25,9 +25,10 @@ export function Providers({ children }) {
     setMounted(true);
   }, []);
 
-  // JIKA BELUM SIAP (MOUNTED), JANGAN RENDER APAPUN
-  // Ini mencegah crash layar hitam di HP
-  if (!mounted) return null;
+  // PERBAIKAN: Jika belum siap, tampilkan halaman kosong putih (bukan crash)
+  if (!mounted) {
+    return <div style={{ visibility: "hidden" }}>{children}</div>;
+  }
 
   return (
     <WagmiProvider config={config}>
